@@ -1,0 +1,357 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>知识掌握情况考察</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        
+        .question {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .question h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        
+        .options {
+            margin-top: 15px;
+        }
+        
+        .option {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .option input {
+            margin-right: 10px;
+            margin-top: 3px;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: vertical;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        
+        button {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 30px auto;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .feedback {
+            display: none;
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        
+        .correct {
+            background-color: rgba(46, 204, 113, 0.2);
+            border-left: 3px solid #2ecc71;
+            padding-left: 10px;
+        }
+        
+        .incorrect {
+            background-color: rgba(231, 76, 60, 0.2);
+            border-left: 3px solid #e74c3c;
+            padding-left: 10px;
+        }
+        
+        .result-section {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f0f7ff;
+            border-radius: 8px;
+        }
+        
+        .answer-key {
+            margin-top: 5px;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .question {
+                padding: 15px;
+            }
+            
+            button {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>知识掌握情况考察</h1>
+        
+        <div id="quiz-container">
+            <!-- 选择题1 -->
+            <div class="question" id="q1">
+                <h3>1. 以下哪个是中国四大发明之一？</h3>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q1" id="q1a" value="A">
+                        <label for="q1a">A. 电灯</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q1" id="q1b" value="B">
+                        <label for="q1b">B. 指南针</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q1" id="q1c" value="C">
+                        <label for="q1c">C. 电话</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q1" id="q1d" value="D">
+                        <label for="q1d">D. 电视</label>
+                    </div>
+                </div>
+                <div class="feedback" id="feedback-q1"></div>
+            </div>
+            
+            <!-- 选择题2 -->
+            <div class="question" id="q2">
+                <h3>2. 太阳系中最大的行星是？</h3>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q2" id="q2a" value="A">
+                        <label for="q2a">A. 地球</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q2" id="q2b" value="B">
+                        <label for="q2b">B. 火星</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q2" id="q2c" value="C">
+                        <label for="q2c">C. 木星</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q2" id="q2d" value="D">
+                        <label for="q2d">D. 土星</label>
+                    </div>
+                </div>
+                <div class="feedback" id="feedback-q2"></div>
+            </div>
+            
+            <!-- 选择题3 -->
+            <div class="question" id="q3">
+                <h3>3. 水的化学式是？</h3>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q3" id="q3a" value="A">
+                        <label for="q3a">A. H2O</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q3" id="q3b" value="B">
+                        <label for="q3b">B. CO2</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q3" id="q3c" value="C">
+                        <label for="q3c">C. O2</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q3" id="q3d" value="D">
+                        <label for="q3d">D. H2O2</label>
+                    </div>
+                </div>
+                <div class="feedback" id="feedback-q3"></div>
+            </div>
+            
+            <!-- 回答题1 -->
+            <div class="question" id="q4">
+                <h3>4. 简述光合作用的过程和意义。</h3>
+                <textarea id="answer-q4" placeholder="请在这里输入你的回答..."></textarea>
+            </div>
+            
+            <!-- 回答题2 -->
+            <div class="question" id="q5">
+                <h3>5. 分析当代环境保护面临的主要挑战。</h3>
+                <textarea id="answer-q5" placeholder="请在这里输入你的回答..."></textarea>
+            </div>
+            
+            <button id="submit-btn">完成答题</button>
+        </div>
+        
+        <div id="result-section" class="result-section">
+            <h2>考试结果</h2>
+            <p id="score-display"></p>
+            <div id="answer-review"></div>
+            <p>选择题答案已自动评分。回答题请参考以下标准答案进行自我评估。</p>
+            <button id="download-btn">导出答题内容</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submitBtn = document.getElementById('submit-btn');
+            const downloadBtn = document.getElementById('download-btn');
+            const quizContainer = document.getElementById('quiz-container');
+            const resultSection = document.getElementById('result-section');
+            
+            // 定义正确答案
+            const correctAnswers = {
+                'q1': 'B',
+                'q2': 'C',
+                'q3': 'A'
+            };
+            
+            // 定义参考答案
+            const referenceAnswers = {
+                'q4': '光合作用是绿色植物、藻类和某些细菌利用光能将二氧化碳和水转化为有机物并释放氧气的过程。其基本过程包括光反应和暗反应两个阶段。光合作用的意义重大：它是地球上几乎所有生命能量的最初来源；它维持了大气中氧气和二氧化碳的平衡；它是碳循环的关键环节，有助于减缓气候变化。',
+                'q5': '当代环境保护面临的主要挑战包括：1. 气候变化导致的全球变暖问题；2. 生物多样性丧失；3. 水资源污染和短缺；4. 空气污染；5. 塑料污染和海洋垃圾；6. 经济发展与环境保护的平衡问题；7. 环境治理机制不完善；8. 公众环保意识有待提高。应对这些挑战需要国际合作、政策创新、技术进步和公众参与。'
+            };
+            
+            submitBtn.addEventListener('click', function() {
+                // 检查是否所有选择题都已回答
+                let allAnswered = true;
+                for (let i = 1; i <= 3; i++) {
+                    const questionName = 'q' + i;
+                    const selectedOption = document.querySelector(`input[name=${questionName}]:checked`);
+                    if (!selectedOption) {
+                        allAnswered = false;
+                        alert(`请回答第${i}题`);
+                        return;
+                    }
+                }
+                
+                // 评分并显示结果
+                let score = 0;
+                let totalQuestions = Object.keys(correctAnswers).length;
+                
+                for (let questionId in correctAnswers) {
+                    const selectedOption = document.querySelector(`input[name=${questionId}]:checked`).value;
+                    const feedbackElement = document.getElementById(`feedback-${questionId}`);
+                    
+                    if (selectedOption === correctAnswers[questionId]) {
+                        score++;
+                        feedbackElement.textContent = `正确! 答案是 ${correctAnswers[questionId]}`;
+                        feedbackElement.className = 'feedback correct';
+                    } else {
+                        feedbackElement.textContent = `错误. 正确答案是 ${correctAnswers[questionId]}`;
+                        feedbackElement.className = 'feedback incorrect';
+                    }
+                    
+                    feedbackElement.style.display = 'block';
+                }
+                
+                // 显示分数
+                const scorePercentage = (score / totalQuestions) * 100;
+                document.getElementById('score-display').textContent = 
+                    `选择题得分: ${score}/${totalQuestions} (${scorePercentage.toFixed(1)}%)`;
+                
+                // 显示回答题参考答案
+                let answerReviewHTML = '<h3>参考答案:</h3>';
+                for (let questionId in referenceAnswers) {
+                    const questionNumber = questionId.substring(1); // 获取问题编号
+                    answerReviewHTML += `<div class="question">
+                        <h4>问题 ${questionNumber}:</h4>
+                        <p class="answer-key">${referenceAnswers[questionId]}</p>
+                    </div>`;
+                }
+                
+                document.getElementById('answer-review').innerHTML = answerReviewHTML;
+                
+                // 显示结果部分
+                quizContainer.style.display = 'none';
+                resultSection.style.display = 'block';
+            });
+            
+            downloadBtn.addEventListener('click', function() {
+                // 收集所有答案
+                let answersText = '知识掌握情况考察答题内容\n\n';
+                
+                // 收集选择题答案
+                for (let i = 1; i <= 3; i++) {
+                    const questionName = 'q' + i;
+                    const questionText = document.querySelector(`#${questionName} h3`).textContent;
+                    const selectedOption = document.querySelector(`input[name=${questionName}]:checked`).value;
+                    const correctAnswer = correctAnswers[questionName];
+                    const isCorrect = selectedOption === correctAnswer ? '✓' : '✗';
+                    
+                    answersText += `${questionText}\n`;
+                    answersText += `你的答案: ${selectedOption} ${isCorrect}\n`;
+                    answersText += `正确答案: ${correctAnswer}\n\n`;
+                }
+                
+                // 收集回答题答案
+                for (let i = 4; i <= 5; i++) {
+                    const questionId = 'q' + i;
+                    const questionText = document.querySelector(`#${questionId} h3`).textContent;
+                    const answer = document.getElementById(`answer-${questionId}`).value || '(未作答)';
+                    
+                    answersText += `${questionText}\n`;
+                    answersText += `你的回答:\n${answer}\n\n`;
+                    answersText += `参考答案:\n${referenceAnswers[questionId]}\n\n`;
+                }
+                
+                // 创建并下载文件
+                const blob = new Blob([answersText], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = '知识考察答题内容.docx';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        });
+    </script>
+
+
+</body></html>
