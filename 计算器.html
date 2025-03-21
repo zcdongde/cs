@@ -1,0 +1,214 @@
+<!DOCTYPE html><html lang="zh"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' 'unsafe-inline' https://fonts.gstatic.com; img-src 'self' data: blob: https://pfst.cf2.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com; media-src 'self' data: blob: https://pfst.cf2.poecdn.net https://i.imgur.com https://wikimedia.org; frame-src 'self' https://www.youtube.com; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>计算器与历史记录</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .calculator {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            width: 300px;
+        }
+        #display {
+            width: 100%;
+            height: 50px;
+            font-size: 24px;
+            text-align: right;
+            margin-bottom: 10px;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        button {
+            padding: 10px;
+            font-size: 18px;
+            border: none;
+            background-color: #e0e0e0;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #d0d0d0;
+        }
+        .history {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .history-item {
+            padding: 5px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .history-item:hover {
+            background-color: #f0f0f0;
+        }
+        .clickable {
+            cursor: pointer;
+            display: inline-block;
+            padding: 0 2px;
+        }
+        .clickable:hover {
+            background-color: #e0e0e0;
+        }
+        #clearHistory {
+            margin-top: 10px;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #clearHistory:hover {
+            background-color: #ff6666;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <input type="text" id="display" readonly="">
+        <div class="buttons">
+            <button onclick="appendToDisplay('7')">7</button>
+            <button onclick="appendToDisplay('8')">8</button>
+            <button onclick="appendToDisplay('9')">9</button>
+            <button onclick="appendToDisplay('+')">+</button>
+            <button onclick="appendToDisplay('4')">4</button>
+            <button onclick="appendToDisplay('5')">5</button>
+            <button onclick="appendToDisplay('6')">6</button>
+            <button onclick="appendToDisplay('-')">-</button>
+            <button onclick="appendToDisplay('1')">1</button>
+            <button onclick="appendToDisplay('2')">2</button>
+            <button onclick="appendToDisplay('3')">3</button>
+            <button onclick="appendToDisplay('*')">*</button>
+            <button onclick="appendToDisplay('0')">0</button>
+            <button onclick="appendToDisplay('.')">.</button>
+            <button onclick="calculate()">=</button>
+            <button onclick="appendToDisplay('/')">/</button>
+            <button onclick="clearDisplay()" style="grid-column: span 2;">清除</button>
+            <button onclick="backspace()" style="grid-column: span 2;">退格</button>
+        </div>
+        <div class="history" id="history"></div>
+        <button id="clearHistory">清除历史记录</button>
+    </div>
+
+    <script>
+        let display = document.getElementById('display');
+        let history = document.getElementById('history');
+        let calculations = JSON.parse(localStorage.getItem('calculatorHistory')) || [];
+
+        function appendToDisplay(value) {
+            display.value += value;
+        }
+
+        function clearDisplay() {
+            display.value = '';
+        }
+
+        function backspace() {
+            display.value = display.value.slice(0, -1);
+        }
+
+        function calculate() {
+            try {
+                let result = eval(display.value);
+                let calculation = `${display.value} = ${result}`;
+                calculations.push(calculation);
+                updateHistory();
+                display.value = result;
+                saveHistory();
+            } catch (error) {
+                display.value = 'Error';
+            }
+        }
+
+        function updateHistory() {
+            history.innerHTML = '';
+            for (let i = calculations.length - 1; i >= 0; i--) {
+                let historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                let parts = calculations[i].split('=');
+                let expression = parts[0].trim();
+                let result = parts[1].trim();
+                
+                expression.split(/([+\-*/])/).forEach(part => {
+                    let span = document.createElement('span');
+                    span.className = 'clickable';
+                    span.textContent = part;
+                    span.onclick = function() {
+                        appendToDisplay(this.textContent);
+                    };
+                    historyItem.appendChild(span);
+                });
+                
+                historyItem.appendChild(document.createTextNode(' = '));
+                
+                let resultSpan = document.createElement('span');
+                resultSpan.className = 'clickable';
+                resultSpan.textContent = result;
+                resultSpan.onclick = function() {
+                    appendToDisplay(this.textContent);
+                };
+                historyItem.appendChild(resultSpan);
+                
+                history.appendChild(historyItem);
+            }
+        }
+
+        function saveHistory() {
+            localStorage.setItem('calculatorHistory', JSON.stringify(calculations));
+        }
+
+        function clearHistory() {
+            calculations = [];
+            updateHistory();
+            saveHistory();
+        }
+
+        // Global keyboard input
+        document.addEventListener('keydown', function(event) {
+            const key = event.key;
+            if (/[0-9+\-*/.=]/.test(key)) {
+                event.preventDefault();
+                if (key === '=') {
+                    calculate();
+                } else {
+                    appendToDisplay(key);
+                }
+            } else if (key === 'Enter') {
+                event.preventDefault();
+                calculate();
+            } else if (key === 'Backspace') {
+                event.preventDefault();
+                backspace();
+            } else if (key === 'Escape') {
+                event.preventDefault();
+                clearDisplay();
+            }
+        });
+
+        // Clear history button
+        document.getElementById('clearHistory').addEventListener('click', clearHistory);
+
+        // Initial history update
+        updateHistory();
+    </script>
+
+
+</body></html>
