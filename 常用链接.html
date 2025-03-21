@@ -1,0 +1,340 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的常用链接</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f7fa;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+        .search-container {
+            margin-bottom: 20px;
+        }
+        #search-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        .categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .category-btn {
+            padding: 8px 15px;
+            background-color: #e9ecef;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .category-btn:hover, .category-btn.active {
+            background-color: #3498db;
+            color: white;
+        }
+        .category-btn.active {
+            font-weight: bold;
+        }
+        .links-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .category-section {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        .category-section h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+        .link-item {
+            margin-bottom: 12px;
+            transition: transform 0.2s;
+        }
+        .link-item:hover {
+            transform: translateX(5px);
+        }
+        .link-item a {
+            color: #2980b9;
+            text-decoration: none;
+            display: block;
+            padding: 8px 5px;
+            border-radius: 4px;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+        .link-item a:hover {
+            background-color: #f0f7ff;
+            color: #1a5f9c;
+        }
+        .link-item a .favicon {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        .link-description {
+            font-size: 13px;
+            color: #7f8c8d;
+            margin-top: 3px;
+            margin-left: 24px;
+        }
+        .no-results {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+            grid-column: 1 / -1;
+        }
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        @media (max-width: 600px) {
+            .links-container {
+                grid-template-columns: 1fr;
+            }
+            .categories {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
+            .category-btn {
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>我的常用链接</h1>
+
+    <div class="search-container">
+        <input type="text" id="search-input" placeholder="搜索链接...">
+        <div class="categories">
+            <button class="category-btn active" data-category="all">全部</button>
+            <!-- 这里会通过JavaScript自动生成分类按钮 -->
+        </div>
+    </div>
+
+    <div class="links-container" id="links-container">
+        <!-- 链接内容会通过JavaScript生成 -->
+    </div>
+
+    <footer>
+        <p>最后更新: <span id="last-updated"></span></p>
+    </footer>
+
+    <script>
+        // ===== 在这里添加你的链接数据 =====
+        // 只需要修改这个数组，其他代码不需要动
+        const linksData = [
+            // 工具类
+            {
+                category: "工具",
+                links: [
+                    {
+                        title: "Google",
+                        url: "https://www.google.com",
+                        description: "全球最大的搜索引擎"
+                    },
+                    {
+                        title: "GitHub",
+                        url: "https://github.com",
+                        description: "代码托管平台"
+                    },
+                    {
+                        title: "ChatGPT",
+                        url: "https://chat.openai.com",
+                        description: "AI聊天助手"
+                    }
+                ]
+            },
+            
+            // 学习资源
+            {
+                category: "学习",
+                links: [
+                    {
+                        title: "MDN Web 文档",
+                        url: "https://developer.mozilla.org/zh-CN/",
+                        description: "Web开发学习资源"
+                    },
+                    {
+                        title: "菜鸟教程",
+                        url: "https://www.runoob.com/",
+                        description: "各类编程语言教程"
+                    }
+                ]
+            },
+            
+            // 娱乐类
+            {
+                category: "娱乐",
+                links: [
+                    {
+                        title: "哔哩哔哩",
+                        url: "https://www.bilibili.com",
+                        description: "视频分享平台"
+                    },
+                    {
+                        title: "网易云音乐",
+                        url: "https://music.163.com/",
+                        description: "音乐流媒体服务"
+                    }
+                ]
+            }
+        ];
+        // ===== 链接数据结束 =====
+
+        // 获取DOM元素
+        const searchInput = document.getElementById('search-input');
+        const categoriesContainer = document.querySelector('.categories');
+        const linksContainer = document.getElementById('links-container');
+        const lastUpdatedSpan = document.getElementById('last-updated');
+        
+        // 设置最后更新日期
+        lastUpdatedSpan.textContent = new Date().toLocaleDateString('zh-CN');
+        
+        // 提取所有分类
+        const categories = ['all', ...new Set(linksData.map(item => item.category))];
+        
+        // 生成分类按钮
+        categories.forEach(category => {
+            if (category !== 'all') { // "全部"按钮已经在HTML中添加了
+                const button = document.createElement('button');
+                button.className = 'category-btn';
+                button.textContent = category;
+                button.dataset.category = category;
+                categoriesContainer.appendChild(button);
+            }
+        });
+        
+        // 渲染链接函数
+        function renderLinks(filterCategory = 'all', searchTerm = '') {
+            linksContainer.innerHTML = '';
+            
+            let filteredData = linksData;
+            if (filterCategory !== 'all') {
+                filteredData = linksData.filter(item => item.category === filterCategory);
+            }
+            
+            let hasResults = false;
+            
+            filteredData.forEach(categoryItem => {
+                const filteredLinks = categoryItem.links.filter(link => {
+                    const lowerSearchTerm = searchTerm.toLowerCase();
+                    return link.title.toLowerCase().includes(lowerSearchTerm) || 
+                           link.url.toLowerCase().includes(lowerSearchTerm) || 
+                           (link.description && link.description.toLowerCase().includes(lowerSearchTerm));
+                });
+                
+                if (filteredLinks.length > 0) {
+                    hasResults = true;
+                    
+                    const categorySection = document.createElement('div');
+                    categorySection.className = 'category-section';
+                    
+                    const categoryTitle = document.createElement('h2');
+                    categoryTitle.textContent = categoryItem.category;
+                    categorySection.appendChild(categoryTitle);
+                    
+                    filteredLinks.forEach(link => {
+                        const linkItem = document.createElement('div');
+                        linkItem.className = 'link-item';
+                        
+                        const linkElement = document.createElement('a');
+                        linkElement.href = link.url;
+                        linkElement.target = '_blank';
+                        linkElement.rel = 'noopener noreferrer';
+                        
+                        // 尝试获取网站favicon
+                        const favicon = document.createElement('img');
+                        favicon.className = 'favicon';
+                        try {
+                            const url = new URL(link.url);
+                            favicon.src = `${url.origin}/favicon.ico`;
+                        } catch (e) {
+                            favicon.style.display = 'none';
+                        }
+                        favicon.onerror = () => {
+                            favicon.style.display = 'none';
+                        };
+                        
+                        linkElement.appendChild(favicon);
+                        linkElement.appendChild(document.createTextNode(link.title));
+                        linkItem.appendChild(linkElement);
+                        
+                        if (link.description) {
+                            const description = document.createElement('div');
+                            description.className = 'link-description';
+                            description.textContent = link.description;
+                            linkItem.appendChild(description);
+                        }
+                        
+                        categorySection.appendChild(linkItem);
+                    });
+                    
+                    linksContainer.appendChild(categorySection);
+                }
+            });
+            
+            if (!hasResults) {
+                const noResults = document.createElement('div');
+                noResults.className = 'no-results';
+                noResults.textContent = '未找到匹配的链接';
+                linksContainer.appendChild(noResults);
+            }
+        }
+        
+        // 初始渲染
+        renderLinks();
+        
+        // 搜索功能
+        searchInput.addEventListener('input', () => {
+            const activeCategory = document.querySelector('.category-btn.active').dataset.category;
+            renderLinks(activeCategory, searchInput.value.trim());
+        });
+        
+        // 分类筛选
+        categoriesContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('category-btn')) {
+                document.querySelectorAll('.category-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                e.target.classList.add('active');
+                
+                renderLinks(e.target.dataset.category, searchInput.value.trim());
+            }
+        });
+    </script>
+
+
+</body></html>
