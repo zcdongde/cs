@@ -58,13 +58,14 @@
         .links-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
+            gap: 10px; /* 减小间距 */
         }
         .category-section {
             background-color: white;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
+            padding: 15px; /* 减小内边距 */
+            margin-bottom: 10px; /* 减小外边距 */
             transition: all 0.3s;
         }
         .category-section h2 {
@@ -75,7 +76,7 @@
             padding-bottom: 5px;
         }
         .link-item {
-            margin-bottom: 12px;
+            margin-bottom: 8px; /* 减小条目间距 */
             transition: transform 0.2s;
         }
         .link-item:hover {
@@ -85,9 +86,9 @@
             color: #2980b9;
             text-decoration: none;
             display: block;
-            padding: 8px 5px;
+            padding: 6px 4px; /* 减小内边距 */
             border-radius: 4px;
-            font-size: 15px;
+            font-size: 14px; /* 可适当减小字体大小 */
             transition: all 0.2s;
         }
         .link-item a:hover {
@@ -101,10 +102,9 @@
             vertical-align: middle;
         }
         .link-description {
-            font-size: 13px;
-            color: #7f8c8d;
-            margin-top: 3px;
-            margin-left: 24px;
+            font-size: 12px; /* 减小描述字体大小 */
+            margin-top: 2px; /* 减小描述与标题的间距 */
+            margin-left: 20px; /* 减小左侧缩进 */
         }
         .no-results {
             text-align: center;
@@ -156,6 +156,27 @@
         // ===== 在这里添加你的链接数据 =====
         // 只需要修改这个数组，其他代码不需要动
         const linksData = [
+            // 工作相关链接
+            {
+                category: "工作",
+                links: [
+                    {
+                        title: "电学三部数据库",
+                        url: "https://www.wolai.com/dongde/sB8w3vUxEBjMmqQ3KjD7wi",
+                        description: "三部我来空间"
+                    },
+                    {
+                        title: "电学部人员与工位图",
+                        url: "https://www.kdocs.cn/l/cm98uqdVZfzJ",
+                        description: ""
+                    },
+                    {
+                        title: "电学三部日更综合表",
+                        url: "https://www.kdocs.cn/l/cduOuek1yPIc",
+                        description: ""
+                    }
+                ]
+            },
             // 自己制作的工具类
             {
                 category: "工具制作",
@@ -196,22 +217,29 @@
                 ]
             },
             
-            // 工作相关链接
+            // 传输工具
             {
-                category: "工作",
+                category: "传输工具",
                 links: [
                     {
-                        title: "电学三部数据库",
-                        url: "https://www.wolai.com/dongde/sB8w3vUxEBjMmqQ3KjD7wi",
-                        description: "三部我来空间"
+                        title: "simplenote笔记",
+                        url: "https://app.simplenote.com/",
+                        description: "http://simp.ly/p/···"
                     },
                     {
-                        title: "电学部人员与工位图",
-                        url: "https://www.kdocs.cn/l/cm98uqdVZfzJ",
+                        title: "开源记事本",
+                        url: "https://getnote.top/dongde",
+                        description: ""
+                    },
+                    {
+                        title: "文叔叔",
+                        url: "https://www.wenshushu.cn/",
                         description: ""
                     }
                 ]
             }
+            
+            
         ];
         // ===== 链接数据结束 =====
 
