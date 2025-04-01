@@ -101,6 +101,10 @@
             margin-right: 8px;
             vertical-align: middle;
         }
+        /* 新增：定义红色锁图标的样式 */
+        .red-lock {
+            color: red !important; /* 使用 !important 提高优先级 */
+        }
         .link-description {
             font-size: 12px; /* 减小描述字体大小 */
             margin-top: 2px; /* 减小描述与标题的间距 */
@@ -163,18 +167,20 @@
                     {
                         title: "电学三部数据库",
                         url: "https://www.wolai.com/dongde/sB8w3vUxEBjMmqQ3KjD7wi",
-                        description: "三部我来空间"
+                        description: "三部我来空间",
+                        password: "123456"
                     },
                     {
                         title: "电学部人员与工位图",
                         url: "https://www.kdocs.cn/l/cm98uqdVZfzJ",
-                        description: ""
+                        description: "",
+                        password: "0"
                     },
                     {
                         title: "电学三部日更综合表",
                         url: "https://www.kdocs.cn/l/cduOuek1yPIc",
                         description: "",
-                        password: "123456"
+                        password: "0"
                     }
                 ]
             },
@@ -338,9 +344,15 @@
                         linkElement.appendChild(favicon);
                         linkElement.appendChild(document.createTextNode(link.title));
                         
-                        // 如果链接有密码，则在标题后添加锁图标
+                        // 根据密码类型显示不同锁图标
                         if (link.password) {
-                            linkElement.appendChild(document.createTextNode(' 🔒')); 
+                            if (link.password === "0") {
+                                // 默认密码，显示普通锁
+                                linkElement.appendChild(document.createTextNode(' 🔒'));
+                            } else {
+                                // 自定义密码，显示钥匙图标
+                                linkElement.appendChild(document.createTextNode(' 🔑')); 
+                            }
                         }
 
                         linkItem.appendChild(linkElement);
