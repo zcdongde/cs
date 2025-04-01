@@ -173,7 +173,8 @@
                     {
                         title: "电学三部日更综合表",
                         url: "https://www.kdocs.cn/l/cduOuek1yPIc",
-                        description: ""
+                        description: "",
+                        password: "123456"
                     }
                 ]
             },
@@ -303,8 +304,25 @@
                         linkElement.href = link.url;
                         linkElement.target = '_blank';
                         linkElement.rel = 'noopener noreferrer';
-                        
-                        // 尝试获取网站favicon
+
+                        if (link.password) {
+                            linkElement.href = '#';
+                            linkElement.addEventListener('click', function(event) {
+                                event.preventDefault();
+                                const enteredPassword = prompt(`请输入密码以访问 "${link.title}":`);
+                                
+                                if (enteredPassword === null) {
+                                    return; 
+                                }
+                                
+                                if (enteredPassword === link.password) {
+                                    window.open(link.url, '_blank');
+                                } else {
+                                    alert('密码错误！');
+                                }
+                            });
+                        }
+
                         const favicon = document.createElement('img');
                         favicon.className = 'favicon';
                         try {
@@ -319,6 +337,12 @@
                         
                         linkElement.appendChild(favicon);
                         linkElement.appendChild(document.createTextNode(link.title));
+                        
+                        // 如果链接有密码，则在标题后添加锁图标
+                        if (link.password) {
+                            linkElement.appendChild(document.createTextNode(' 🔒')); 
+                        }
+
                         linkItem.appendChild(linkElement);
                         
                         if (link.description) {
