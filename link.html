@@ -101,6 +101,17 @@
             margin-right: 8px;
             vertical-align: middle;
         }
+        /* 添加复制图标的样式 */
+        .copy-icon {
+            cursor: pointer;
+            margin-left: 8px;
+            font-size: 14px;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        .copy-icon:hover {
+            opacity: 1;
+        }
         /* 新增：定义红色锁图标的样式 */
         .red-lock {
             color: red !important; /* 使用 !important 提高优先级 */
@@ -167,7 +178,7 @@
                     {
                         title: "电学三部数据库",
                         url: "https://www.wolai.com/dongde/sB8w3vUxEBjMmqQ3KjD7wi",
-                        description: "三部我来空间"
+                        description: ""
                     },
                     {
                         title: "电学部人员与工位图",
@@ -206,23 +217,6 @@
                 ]
             },
             
-            // 学习资源
-            {
-                category: "学习",
-                links: [
-                    {
-                        title: "MDN Web 文档",
-                        url: "https://developer.mozilla.org/zh-CN/",
-                        description: "Web开发学习资源"
-                    },
-                    {
-                        title: "菜鸟教程",
-                        url: "https://www.runoob.com/",
-                        description: "各类编程语言教程"
-                    }
-                ]
-            },
-            
             // 传输工具
             {
                 category: "传输工具",
@@ -242,6 +236,57 @@
                         title: "文叔叔",
                         url: "https://www.wenshushu.cn/",
                         description: ""
+                    }
+                ]
+            },
+            
+            // 工具使用经验
+            {
+                category: "工具使用经验",
+                links: [
+                    {
+                        title: "魔法获取与使用",
+                        url: "https://zcdongde.github.io/cs/vpn-guide.html",
+                        description: ""
+                    },
+                    {
+                        title: "个人工作辅助常用AI工具",
+                        url: "https://www.wolai.com/pAnGsiNiE5RWj4PjRqY2jX",
+                        description: ""
+                    }
+                ]
+            },
+            
+            // 知识产权学习
+            {
+                category: "知识产权学习",
+                links: [
+                    {
+                        title: "电学软通专利撰写学习教程",
+                        url: "",
+                        description: ""
+                    },
+                    {
+                        title: "OA答复学习教程",
+                        url: "",
+                        description: ""
+                    }
+                ]
+            },
+            
+            // IT学习资源
+            {
+                category: "IT学习资源",
+                links: [
+                    {
+                        title: "MDN Web 文档",
+                        url: "https://developer.mozilla.org/zh-CN/",
+                        description: "Web开发学习资源"
+                    },
+                    {
+                        title: "菜鸟教程",
+                        url: "https://www.runoob.com/",
+                        description: "各类编程语言教程"
                     }
                 ]
             }
@@ -355,6 +400,40 @@
                             }
                         }
 
+                        // 添加复制图标
+                        const copyIcon = document.createElement('span');
+                        copyIcon.className = 'copy-icon';
+                        copyIcon.innerHTML = ' 📋';
+                        copyIcon.title = '复制链接';
+                        copyIcon.addEventListener('click', function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            
+                            if (link.password) {
+                                const enteredPassword = prompt(`请输入密码以复制 "${link.title}" 的链接:`);
+                                if (enteredPassword === null) return;
+                                
+                                if (enteredPassword === link.password) {
+                                    navigator.clipboard.writeText(link.url).then(() => {
+                                        alert('链接已复制到剪贴板！');
+                                    }).catch(err => {
+                                        console.error('复制失败:', err);
+                                        alert('复制失败，请重试！');
+                                    });
+                                } else {
+                                    alert('密码错误！');
+                                }
+                            } else {
+                                navigator.clipboard.writeText(link.url).then(() => {
+                                    alert('链接已复制到剪贴板！');
+                                }).catch(err => {
+                                    console.error('复制失败:', err);
+                                    alert('复制失败，请重试！');
+                                });
+                            }
+                        });
+                        
+                        linkElement.appendChild(copyIcon);
                         linkItem.appendChild(linkElement);
                         
                         if (link.description) {
