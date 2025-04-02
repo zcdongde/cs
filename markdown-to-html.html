@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown 转 HTML 工具</title>
+    <style>
+        :root {
+            --primary-color: #0366d6;
+            --text-color: #24292e;
+            --bg-color: #ffffff;
+            --border-color: #e1e4e8;
+            --hover-color: #f6f8fa;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg-color);
+        }
+
+        .container {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            color: var(--text-color);
+            margin-bottom: 30px;
+        }
+
+        .drop-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 40px;
+            margin: 20px 0;
+            background-color: var(--hover-color);
+            transition: all 0.3s ease;
+        }
+
+        .drop-zone.dragover {
+            border-color: var(--primary-color);
+            background-color: #f1f8ff;
+        }
+
+        .drop-zone p {
+            margin: 0;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .drop-zone .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 20px;
+            color: #fff;
+            background-color: var(--primary-color);
+            border: 1px solid rgba(27, 31, 35, 0.15);
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: #2ea44f;
+            border-color: rgba(27, 31, 35, 0.15);
+        }
+
+        .preview {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            text-align: left;
+            display: none;
+        }
+
+        .preview.show {
+            display: block;
+        }
+
+        .preview h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .preview-content {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: var(--hover-color);
+            border-radius: 4px;
+        }
+
+        .error {
+            color: #cb2431;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .loading {
+            display: none;
+            margin: 20px 0;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .loading::after {
+            content: "转换中...";
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: "转换中."; }
+            40% { content: "转换中.."; }
+            60% { content: "转换中..."; }
+            80%, 100% { content: "转换中...."; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Markdown 转 HTML 工具</h1>
+        
+        <div class="drop-zone" id="dropZone">
+            <div class="icon">📄</div>
+            <p>将 Markdown 文件拖放到此处</p>
+            <p>或</p>
+            <label class="btn">选择文件</label>
+            <input type="file" class="file-input" id="fileInput" accept=".md,.markdown">
+        </div>
+
+        <div class="error" id="error"></div>
+        <div class="loading" id="loading"></div>
+
+        <div class="preview" id="preview">
+            <h2>预览</h2>
+            <div class="preview-content" id="previewContent"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const preview = document.getElementById('preview');
+        const previewContent = document.getElementById('previewContent');
+        const error = document.getElementById('error');
+        const loading = document.getElementById('loading');
+
+        // 拖拽事件处理
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            dropZone.classList.add('dragover');
+        }
+
+        function unhighlight(e) {
+            dropZone.classList.remove('dragover');
+        }
+
+        // 处理文件拖放
+        dropZone.addEventListener('drop', handleDrop, false);
+        fileInput.addEventListener('change', handleFileSelect, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            if (files.length === 0) return;
+            
+            const file = files[0];
+            if (!file.name.endsWith('.md') && !file.name.endsWith('.markdown')) {
+                showError('请选择 Markdown 文件（.md 或 .markdown）');
+                return;
+            }
+
+            showLoading();
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const markdown = e.target.result;
+                const html = marked.parse(markdown);
+                
+                previewContent.innerHTML = html;
+                preview.classList.add('show');
+                loading.classList.remove('show');
+                
+                // 创建下载链接
+                const blob = new Blob([html], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = file.name.replace(/\.(md|markdown)$/, '.html');
+                a.className = 'btn';
+                a.style.marginTop = '20px';
+                a.textContent = '下载 HTML 文件';
+                
+                // 移除旧的下载链接（如果存在）
+                const oldLink = document.querySelector('.download-link');
+                if (oldLink) oldLink.remove();
+                
+                a.classList.add('download-link');
+                dropZone.parentNode.appendChild(a);
+                
+                URL.revokeObjectURL(url);
+            };
+            
+            reader.onerror = function() {
+                showError('文件读取失败');
+                loading.classList.remove('show');
+            };
+            
+            reader.readAsText(file);
+        }
+
+        function showError(message) {
+            error.textContent = message;
+            error.classList.add('show');
+            setTimeout(() => {
+                error.classList.remove('show');
+            }, 3000);
+        }
+
+        function showLoading() {
+            loading.classList.add('show');
+            preview.classList.remove('show');
+            error.classList.remove('show');
+        }
+    </script>
+</body>
+</html> 
