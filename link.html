@@ -254,6 +254,11 @@
                         title: "文叔叔",
                         url: "https://www.wenshushu.cn/",
                         description: ""
+                    },
+                    {
+                        title: "MuseTransfer",
+                        url: "https://musetransfer.com/",
+                        description: ""
                     }
                 ]
             },
@@ -346,6 +351,7 @@
             }
             
             let hasResults = false;
+            let categoryIndex = 1; // 分类序号计数器
             
             filteredData.forEach(categoryItem => {
                 const filteredLinks = categoryItem.links.filter(link => {
@@ -362,9 +368,12 @@
                     categorySection.className = 'category-section';
                     
                     const categoryTitle = document.createElement('h2');
-                    categoryTitle.textContent = categoryItem.category;
+                    // 将分类序号格式化为两位数
+                    const formattedCategoryIndex = categoryIndex.toString().padStart(2, '0');
+                    categoryTitle.textContent = `${formattedCategoryIndex}. ${categoryItem.category}`;
                     categorySection.appendChild(categoryTitle);
                     
+                    let linkIndex = 1; // 链接序号计数器
                     filteredLinks.forEach(link => {
                         const linkItem = document.createElement('div');
                         linkItem.className = 'link-item';
@@ -405,7 +414,9 @@
                         };
                         
                         linkElement.appendChild(favicon);
-                        linkElement.appendChild(document.createTextNode(link.title));
+                        // 将链接序号格式化为四位数，前两位是分类序号，后两位是链接序号
+                        const formattedLinkIndex = `${formattedCategoryIndex}${linkIndex.toString().padStart(2, '0')}`;
+                        linkElement.appendChild(document.createTextNode(`${formattedLinkIndex}. ${link.title}`));
                         
                         // 根据密码类型显示不同锁图标
                         if (link.password) {
@@ -462,9 +473,11 @@
                         }
                         
                         categorySection.appendChild(linkItem);
+                        linkIndex++; // 增加链接序号
                     });
                     
                     linksContainer.appendChild(categorySection);
+                    categoryIndex++; // 增加分类序号
                 }
             });
             
