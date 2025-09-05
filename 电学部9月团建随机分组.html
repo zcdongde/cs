@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>凝心聚力，共赴新程</title>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .page {
+            display: none;
+            width: 100%;
+            min-height: 100vh;
+        }
+        
+        .page.active {
+            display: block;
+        }
+
+        .initial-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        #suggestions {
+            max-height: 200px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.5) rgba(255, 255, 255, 0.1);
+        }
+        
+        #suggestions::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        #suggestions::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        
+        #suggestions::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 3px;
+        }
+
+        .suggestion-item {
+            padding: 8px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .suggestion-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .leader-badge {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            margin-left: 4px;
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        .group-result {
+            transition: all 0.3s ease;
+        }
+
+        .group-result:hover {
+            transform: translateY(-2px);
+        }
+
+        .admin-login-form {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .admin-login-form.show {
+            max-height: 200px;
+        }
+
+        .error-message {
+            color: #ff4e4e;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: 100%;
+            max-width: 320px;
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            margin-bottom: 1rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .input-field::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .members-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+        }
+
+        .member-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .member-item.leader {
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: 500;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        .shake {
+            animation: shake 0.3s ease-in-out;
+        }
+
+        /* 管理员界面样式 */
+        .admin-department-block {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            height: 100%;
+        }
+
+        .admin-member-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            transition: background-color 0.2s;
+        }
+
+        .admin-member-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .admin-department-label {
+            font-size: 0.875rem;
+            opacity: 0.75;
+            margin-left: 0.5rem;
+        }
+
+        .whitespace-nowrap {
+            white-space: nowrap;
+        }
+
+        /* 错误提示样式 */
+        .error-toast {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            backdrop-filter: blur(10px);
+            z-index: 50;
+            animation: slideIn 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body class="py-8">
+    <!-- 初始页面 -->
+    <div id="initialPage" class="page active">
+        <div class="initial-page">
+            <h1 class="text-4xl font-bold text-white mb-12 text-center tracking-wider">凝心聚力，共赴新程</h1>
+            
+            <button onclick="showDrawPage()" class="btn mb-4">
+                进入分组
+            </button>
+            
+            <button onclick="toggleAdminLogin()" class="btn mb-4">
+                管理员登录
+            </button>
+
+            <div id="adminLoginForm" class="admin-login-form">
+                <input 
+                    type="password" 
+                    id="adminPassword" 
+                    placeholder="请输入管理员密码" 
+                    class="input-field"
+                >
+                <button onclick="verifyAdminPassword()" class="btn">
+                    验证
+                </button>
+                <div id="adminError" class="error-message hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分组页面 -->
+    <div id="homePage" class="page">
+        <div class="container mx-auto px-4 py-8">
+            <div class="max-w-2xl mx-auto text-center">
+                <h1 class="text-4xl font-bold text-white mb-4 tracking-wider">凝心聚力，共赴新程</h1>
+                <h2 class="text-2xl text-white mb-12 opacity-90">活动随机分组</h2>
+                
+                <form id="drawForm" class="glass-effect rounded-xl p-8 mb-8">
+                    <div class="relative">
+                        <div class="flex">
+                            <input 
+                                type="text" 
+                                id="nameInput" 
+                                class="flex-1 p-3 bg-white bg-opacity-20 text-white rounded-l border-0 focus:outline-none focus:ring-2 focus:ring-white placeholder-white placeholder-opacity-70" 
+                                placeholder="请输入或选择姓名"
+                                autocomplete="off"
+                            >
+                            <button 
+                                type="button" 
+                                id="dropdownButton"
+                                class="px-4 bg-white bg-opacity-20 text-white border-0 rounded-r hover:bg-opacity-30 transition-all"
+                            >
+                                ▼
+                            </button>
+                        </div>
+                        <div id="suggestions" class="absolute z-10 w-full mt-1 bg-white bg-opacity-20 backdrop-blur-md border border-white border-opacity-20 rounded-lg shadow-lg hidden text-white"></div>
+                    </div>
+                    
+                    <div id="errorMessage" class="text-red-300 text-sm mt-2 hidden"></div>
+                    
+                    <button 
+                        type="submit" 
+                        id="submitButton"
+                        class="w-full mt-6 p-3 bg-white bg-opacity-20 text-white rounded-lg hover:bg-opacity-30 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg font-semibold tracking-wide"
+                        disabled
+                    >
+                        开始分组
+                    </button>
+                </form>
+
+                <button onclick="returnToInitialPage()" class="btn mt-4">
+                    返回首页
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 结果页面 -->
+    <div id="resultPage" class="page">
+        <div class="container mx-auto px-4">
+            <h1 class="text-4xl font-bold text-white text-center mb-8">分组结果</h1>
+            
+            <div class="result-container">
+                <div id="groupsContainer" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-6">
+                    <!-- 分组结果将在这里动态显示 -->
+                </div>
+            </div>
+
+            <div class="text-center mt-8">
+                <button onclick="returnToInitialPage()" class="btn">
+                    返回首页
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 管理员页面 -->
+    <div id="adminPage" class="page">
+        <div class="container mx-auto px-4 py-8">
+            <h1 class="text-4xl font-bold text-white text-center mb-8">管理员界面</h1>
+            
+            <!-- 未分组人员板块 -->
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-white mb-4">未分组人员</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4" id="departmentBlocks">
+                    <!-- 各部门板块将通过 JavaScript 动态生成 -->
+                </div>
+            </div>
+
+            <!-- 分组情况 -->
+            <div>
+                <h2 class="text-2xl font-bold text-white mb-4">分组情况</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4" id="adminGroupsContainer">
+                    <!-- 分组结果将通过 JavaScript 动态生成 -->
+                </div>
+            </div>
+
+            <div class="text-center mt-8 space-y-4">
+                <button 
+                    onclick="debouncedClearAllGroups()" 
+                    class="btn bg-red-500 bg-opacity-20 hover:bg-opacity-30 transform hover:scale-105 transition-all duration-200"
+                >
+                    <span class="flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        清除所有分组数据
+                    </span>
+                </button>
+                <button onclick="returnToInitialPage()" class="btn">
+                    返回首页
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 错误提示容器 -->
+    <div id="errorToast" class="hidden"></div>
+<script>
+    // Firebase 配置
+    const firebaseConfig = {
+        apiKey: "AIzaSyDM11_8pRpKu5cu-paJxo_Du4hj_MVz8KY",
+        authDomain: "drawlots-335d2.firebaseapp.com",
+        projectId: "drawlots-335d2",
+        storageBucket: "drawlots-335d2.firebasestorage.app",
+        messagingSenderId: "476840204048",
+        appId: "1:476840204048:web:5feb9407cc890ca8fd3795",
+        measurementId: "G-K221NQRY2H"
+    };
+
+    // 初始化 Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // 全局变量
+    const ADMIN_PASSWORD = 'wz202596';
+    let isAdminLoginVisible = false;
+    let groupsUnsubscribe = null;
+    let retryCount = 0;
+    const MAX_RETRIES = 3;
+    let clearInProgress = false;
+
+    // 部门成员数据
+    const departmentMembers = {
+        '电学一部一组': ['王浩宇', '姚明松', '徐建铭', '周赢国', '王海迪', '胡国天', '宋一平'],
+        '电学一部二组': ['丰行', '涂颖', '何亚琴', '徐祎杨'],
+        '电学一部三组': ['张金玲', '金超', '李亮', '占晴芳'],
+        '电学三部': ['万培', '刘顺', '崔富棋', '黄婧婷', '吴冯颂', '张诗雨', '平威', '陈娇', '张思佳', '陶叙贝', '雷康达', '范玲', '黎明', '董德', '魏冰焱', '王苗', '王曼'],
+        '人资财经行政组': ['宋怡萍', '刘珂珂', '吴文波', '王玉丽']
+    };
+
+    let selectedName = '';
+    let selectedDepartment = '';
+
+    // 页面控制函数
+    function showPage(pageId) {
+        console.log('Showing page:', pageId);
+        
+        document.querySelectorAll('.page').forEach(page => {
+            page.classList.remove('active');
+        });
+        
+        const targetPage = document.getElementById(pageId);
+        if (targetPage) {
+            targetPage.classList.add('active');
+            
+            // 根据页面类型启动相应的实时更新
+            if (pageId === 'adminPage' || pageId === 'resultPage') {
+                startRealtimeUpdates();
+            } else {
+                // 如果不是需要实时更新的页面，取消订阅
+                if (groupsUnsubscribe) {
+                    groupsUnsubscribe();
+                    groupsUnsubscribe = null;
+                }
+            }
+        } else {
+            console.error('Page not found:', pageId);
+        }
+    }
+
+    // 获取当前显示的页面
+    function getCurrentPage() {
+        const pages = ['initialPage', 'homePage', 'resultPage', 'adminPage'];
+        for (const pageId of pages) {
+            const page = document.getElementById(pageId);
+            if (page && page.classList.contains('active')) {
+                return pageId;
+            }
+        }
+        return null;
+    }
+
+    // 显示分组页面
+    function showDrawPage() {
+        showPage('homePage');
+    }
+
+    // 显示管理员页面
+    function showAdminPage() {
+        showPage('adminPage');
+    }
+
+    // 返回初始页面
+    function returnToInitialPage() {
+        showPage('initialPage');
+        if (isAdminLoginVisible) {
+            toggleAdminLogin();
+        }
+    }
+
+    // 切换管理员登录表单
+    function toggleAdminLogin() {
+        const adminLoginForm = document.getElementById('adminLoginForm');
+        const adminError = document.getElementById('adminError');
+        
+        isAdminLoginVisible = !isAdminLoginVisible;
+        
+        if (isAdminLoginVisible) {
+            adminLoginForm.classList.add('show');
+            document.getElementById('adminPassword').value = '';
+            if (adminError) {
+                adminError.classList.add('hidden');
+            }
+        } else {
+            adminLoginForm.classList.remove('show');
+        }
+    }
+
+    // 验证管理员密码
+    function verifyAdminPassword() {
+        const password = document.getElementById('adminPassword').value;
+        const adminError = document.getElementById('adminError');
+        
+        if (password === ADMIN_PASSWORD) {
+            showAdminPage();
+            toggleAdminLogin();
+        } else {
+            adminError.textContent = '密码错误';
+            adminError.classList.remove('hidden');
+            const input = document.getElementById('adminPassword');
+            input.classList.add('shake');
+            setTimeout(() => input.classList.remove('shake'), 500);
+        }
+    }
+
+    // 获取所有成员名单
+    function getAllNames() {
+        return Object.values(departmentMembers).flat();
+    }
+
+    // 根据姓名获取部门
+    function getDepartmentByName(name) {
+        for (const [dept, members] of Object.entries(departmentMembers)) {
+            if (members.includes(name)) {
+                return dept;
+            }
+        }
+        return '';
+    }
+
+    // 错误处理函数
+    function showError(message, isSuccess = false) {
+        const toastDiv = document.createElement('div');
+        toastDiv.className = `error-toast ${isSuccess ? 'bg-green-500' : 'bg-red-500'} bg-opacity-90`;
+        
+        // 添加图标
+        const icon = document.createElement('span');
+        icon.className = 'mr-2';
+        icon.innerHTML = isSuccess ? '✓' : '!';
+        toastDiv.appendChild(icon);
+        
+        // 添加消息文本
+        const text = document.createElement('span');
+        text.textContent = message;
+        toastDiv.appendChild(text);
+        
+        document.body.appendChild(toastDiv);
+        
+        // 添加淡出动画
+        setTimeout(() => {
+            toastDiv.style.opacity = '0';
+            toastDiv.style.transition = 'opacity 0.5s ease';
+            setTimeout(() => toastDiv.remove(), 500);
+        }, 2500);
+    }
+
+    // 隐藏错误信息
+    function hideError() {
+        const errorMessage = document.getElementById('errorMessage');
+        if (errorMessage) {
+            errorMessage.classList.add('hidden');
+        }
+    }
+// 更新未分组人员显示
+    function updateUnassignedMembers(groups) {
+        const departmentBlocks = document.getElementById('departmentBlocks');
+        if (!departmentBlocks) return;
+
+        // 获取所有已分组的人员
+        const assignedMembers = new Set(
+            groups.flatMap(group => group.members ? group.members.map(member => member.name) : [])
+        );
+
+        // 更新每个部门板块
+        departmentBlocks.innerHTML = '';
+
+        Object.entries(departmentMembers).forEach(([deptName, members]) => {
+            const unassignedMembers = members.filter(name => !assignedMembers.has(name));
+            
+            const deptBlock = document.createElement('div');
+            deptBlock.className = 'glass-effect rounded-xl p-4';
+            
+            deptBlock.innerHTML = `
+                <h3 class="text-lg font-bold text-white mb-2 pb-2 border-b border-white border-opacity-20">
+                    ${deptName} (${unassignedMembers.length}人)
+                </h3>
+                <div class="text-white space-y-1">
+                    ${unassignedMembers.map(name => `
+                        <div class="px-2 py-1 rounded hover:bg-white hover:bg-opacity-10">
+                            ${name}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            departmentBlocks.appendChild(deptBlock);
+        });
+    }
+
+    // 更新分组结果显示
+    function updateResults(groups) {
+        const container = document.getElementById('groupsContainer');
+        if (!container) return;
+
+        container.innerHTML = '';
+        
+        groups.forEach((group, index) => {
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'group-result glass-effect rounded-xl p-4 min-w-[200px]';
+
+            const members = group.members || [];
+            // 对成员进行排序，确保组长在第一位
+            const sortedMembers = [...members].sort((a, b) => {
+                if (a.isLeader) return -1;
+                if (b.isLeader) return 1;
+                return 0;
+            });
+
+            groupDiv.innerHTML = `
+                <h3 class="text-lg font-bold mb-4 text-center text-white border-b border-white border-opacity-20 pb-2">
+                    第${index + 1}组
+                </h3>
+                <div class="members-list">
+                    ${sortedMembers.map(member => `
+                        <div class="member-item ${member.isLeader ? 'leader' : ''}">
+                            <span class="text-center text-white">
+                                ${member.name}${member.isLeader ? '<span class="leader-badge">组长</span>' : ''}
+                            </span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            container.appendChild(groupDiv);
+        });
+    }
+
+    // 更新管理员界面的分组显示
+    function updateAdminGroupsView(groups) {
+        const container = document.getElementById('adminGroupsContainer');
+        if (!container) return;
+
+        container.innerHTML = '';
+        
+        groups.forEach((group, index) => {
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'group-result glass-effect rounded-xl p-4';
+
+            const members = group.members || [];
+            // 对成员进行排序，确保组长在第一位
+            const sortedMembers = [...members].sort((a, b) => {
+                if (a.isLeader) return -1;
+                if (b.isLeader) return 1;
+                return 0;
+            });
+
+            groupDiv.innerHTML = `
+                <h3 class="text-lg font-bold mb-4 text-center text-white border-b border-white border-opacity-20 pb-2">
+                    第${index + 1}组
+                </h3>
+                <div class="members-list">
+                    ${sortedMembers.map(member => `
+                        <div class="member-item ${member.isLeader ? 'leader' : ''} whitespace-nowrap overflow-hidden text-ellipsis">
+                            <span class="text-white">
+                                ${member.name}
+                                <span class="text-white opacity-75 text-sm">
+                                    (${member.department})
+                                </span>
+                                ${member.isLeader ? '<span class="leader-badge">组长</span>' : ''}
+                            </span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            container.appendChild(groupDiv);
+        });
+    }
+
+    // 实时更新函数
+    function startRealtimeUpdates() {
+        if (groupsUnsubscribe) {
+            groupsUnsubscribe();
+        }
+
+        groupsUnsubscribe = db.collection('groups')
+            .orderBy('groupId')
+            .onSnapshot(snapshot => {
+                const groups = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data && typeof data.groupId !== 'undefined') {
+                        groups.push(data);
+                    }
+                });
+
+                const currentPage = getCurrentPage();
+                console.log('Current page:', currentPage);
+                
+                if (currentPage === 'resultPage') {
+                    console.log('Updating results view');
+                    updateResults(groups);
+                } else if (currentPage === 'adminPage') {
+                    console.log('Updating admin view');
+                    updateAdminGroupsView(groups);
+                    updateUnassignedMembers(groups);
+                }
+            }, error => {
+                console.error("实时更新错误:", error);
+                handleUpdateError(error);
+            });
+    }
+
+    // 初始化分组
+    async function initializeGroups() {
+        try {
+            if (!selectedName || !selectedDepartment) {
+                showPage('homePage');
+                return;
+            }
+
+            const groupsRef = db.collection('groups');
+            const snapshot = await groupsRef.get();
+            
+            // 检查是否已经分组
+            let alreadyGrouped = false;
+            snapshot.forEach(doc => {
+                const group = doc.data();
+                if (group.members && group.members.some(m => m.name === selectedName)) {
+                    alreadyGrouped = true;
+                }
+            });
+
+            if (alreadyGrouped) {
+                showPage('resultPage');
+                return;
+            }
+
+            // 如果是空集合，初始化分组
+            if (snapshot.empty) {
+                const batch = db.batch();
+                for (let i = 0; i < 7; i++) {
+                    batch.set(groupsRef.doc(`group${i}`), {
+                        groupId: i,
+                        members: []
+                    });
+                }
+                await batch.commit();
+            }
+
+            // 重新获取最新数据
+            const updatedSnapshot = await groupsRef.get();
+            let groups = [];
+            let totalMembers = 0;
+
+            updatedSnapshot.forEach(doc => {
+                const group = doc.data();
+                if (group.members) {
+                    groups.push(group);
+                    totalMembers += group.members.length;
+                }
+            });
+
+            let targetGroupId = -1;
+
+            // 前14个人的随机分配逻辑
+            if (totalMembers < 14) {
+                // 获取所有可用的组（人数最少的组）
+                const groupSizes = groups.map(g => (g.members || []).length);
+                const minSize = Math.min(...groupSizes);
+                const availableGroups = groups.filter(g => (g.members || []).length === minSize);
+                
+                // 随机选择一个可用的组
+                targetGroupId = availableGroups[Math.floor(Math.random() * availableGroups.length)].groupId;
+            } else {
+                // 第15个人开始的分配逻辑
+                // 查找可以分配的组（同部门人数不超过2的组）
+                const availableGroups = groups.filter(group => {
+                    const departmentMembers = (group.members || []).filter(m => m.department === selectedDepartment);
+                    return departmentMembers.length < 2;
+                });
+
+                if (availableGroups.length > 0) {
+                    // 在符合条件的组中随机选择一个
+                    const randomGroup = availableGroups[Math.floor(Math.random() * availableGroups.length)];
+                    targetGroupId = randomGroup.groupId;
+                } else {
+                    // 如果没有符合条件的组，选择同部门人数最少的组
+                    const departmentCounts = groups.map(group => ({
+                        groupId: group.groupId,
+                        count: (group.members || []).filter(m => m.department === selectedDepartment).length
+                    }));
+                    
+                    const minCount = Math.min(...departmentCounts.map(dc => dc.count));
+                    const minGroups = departmentCounts.filter(dc => dc.count === minCount);
+                    
+                    targetGroupId = minGroups[Math.floor(Math.random() * minGroups.length)].groupId;
+                }
+            }
+
+            if (targetGroupId === -1) {
+                showError('无法找到合适的分组');
+                return;
+            }
+
+            await groupsRef.doc(`group${targetGroupId}`).update({
+                members: firebase.firestore.FieldValue.arrayUnion({
+                    name: selectedName,
+                    department: selectedDepartment,
+                    isLeader: false,
+                    timestamp: Date.now()
+                })
+            });
+
+            // 当所有36个人都分配完成后，为每组随机选择一个组长
+            if (totalMembers + 1 === 36) {
+                for (const group of groups) {
+                    const updatedGroup = (await groupsRef.doc(`group${group.groupId}`).get()).data();
+                    if (updatedGroup.members && updatedGroup.members.length > 0) {
+                        const randomIndex = Math.floor(Math.random() * updatedGroup.members.length);
+                        const updatedMembers = updatedGroup.members.map((member, index) => ({
+                            ...member,
+                            isLeader: index === randomIndex
+                        }));
+                        await groupsRef.doc(`group${group.groupId}`).update({
+                            members: updatedMembers
+                        });
+                    }
+                }
+            }
+
+            showPage('resultPage');
+
+        } catch (error) {
+            console.error('分组操作失败:', error);
+            showError('分组操作失败: ' + error.message);
+        }
+    }
+
+    // 清除所有分组数据
+    async function clearAllGroups() {
+        if (!confirm('确定要清除所有分组数据吗？此操作将清空所有分组，所有用户需要重新进行分组。')) {
+            return;
+        }
+
+        try {
+            const groupsRef = db.collection('groups');
+            const batch = db.batch();
+            
+            // 初始化7个空分组
+            for (let i = 0; i < 7; i++) {
+                const groupDoc = groupsRef.doc(`group${i}`);
+                batch.set(groupDoc, {
+                    groupId: i,
+                    members: []
+                }, { merge: true });
+            }
+            
+            await batch.commit();
+            
+            showError('所有分组数据已清除，用户可重新进行分组', true);
+            
+            const emptyGroups = Array(7).fill().map((_, i) => ({
+                groupId: i,
+                members: []
+            }));
+            
+            updateAdminGroupsView(emptyGroups);
+            updateUnassignedMembers(emptyGroups);
+
+            // 重置全局状态
+            selectedName = '';
+            selectedDepartment = '';
+
+            // 更新分组页面的输入框状态
+            const nameInput = document.getElementById('nameInput');
+            const submitButton = document.getElementById('submitButton');
+            if (nameInput) nameInput.value = '';
+            if (submitButton) submitButton.disabled = true;
+
+        } catch (error) {
+            console.error('清除数据失败:', error);
+            showError('清除数据失败: ' + error.message);
+        }
+    }
+
+    // 防抖处理的清除功能
+    async function debouncedClearAllGroups() {
+        if (clearInProgress) {
+            showError('清除操作正在进行中，请稍候...');
+            return;
+        }
+
+        clearInProgress = true;
+        await clearAllGroups();
+        clearInProgress = false;
+    }
+
+    // 错误处理和重试机制
+    function handleUpdateError(error) {
+        console.error("更新失败:", error);
+        
+        if (retryCount < MAX_RETRIES) {
+            retryCount++;
+            console.log(`尝试第 ${retryCount} 次重新连接...`);
+            setTimeout(() => {
+                startRealtimeUpdates();
+            }, 1000 * retryCount);
+        } else {
+            showError("更新失败，请刷新页面重试");
+        }
+    }
+
+    // 显示姓名建议
+    function showSuggestions(suggestions) {
+        const suggestionsDiv = document.getElementById('suggestions');
+        suggestionsDiv.innerHTML = '';
+        
+        suggestions.forEach(name => {
+            const div = document.createElement('div');
+            div.className = 'suggestion-item';
+            div.textContent = name;
+            div.onclick = () => selectName(name);
+            suggestionsDiv.appendChild(div);
+        });
+        
+        suggestionsDiv.classList.remove('hidden');
+    }
+
+    // 选择姓名
+    function selectName(name) {
+        const nameInput = document.getElementById('nameInput');
+        const suggestionsDiv = document.getElementById('suggestions');
+        const submitButton = document.getElementById('submitButton');
+        
+        nameInput.value = name;
+        selectedName = name;
+        selectedDepartment = getDepartmentByName(name);
+        suggestionsDiv.classList.add('hidden');
+        submitButton.disabled = false;
+    }
+
+    // 页面加载完成后的初始化
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            // 检查并初始化分组数据
+            const groupsRef = db.collection('groups');
+            const snapshot = await groupsRef.get();
+            
+            if (snapshot.empty) {
+                const batch = db.batch();
+                for (let i = 0; i < 7; i++) {
+                    batch.set(groupsRef.doc(`group${i}`), {
+                        groupId: i,
+                        members: []
+                    });
+                }
+                await batch.commit();
+                console.log('Groups initialized successfully');
+            }
+
+            // 初始化页面显示
+            showPage('initialPage');
+            
+            // 添加姓名输入事件监听
+            const nameInput = document.getElementById('nameInput');
+            const dropdownButton = document.getElementById('dropdownButton');
+            const suggestionsDiv = document.getElementById('suggestions');
+            const drawForm = document.getElementById('drawForm');
+
+            // 姓名输入处理
+            nameInput?.addEventListener('input', (e) => {
+                const input = e.target.value.trim();
+                if (input) {
+                    const suggestions = getAllNames().filter(name => 
+                        name.toLowerCase().includes(input.toLowerCase())
+                    );
+                    showSuggestions(suggestions);
+                } else {
+                    suggestionsDiv.classList.add('hidden');
+                    document.getElementById('submitButton').disabled = true;
+                }
+            });
+
+            // 下拉按钮点击处理
+            dropdownButton?.addEventListener('click', () => {
+                if (suggestionsDiv.classList.contains('hidden')) {
+                    showSuggestions(getAllNames());
+                } else {
+                    suggestionsDiv.classList.add('hidden');
+                }
+            });
+
+            // 点击外部关闭建议列表
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#nameInput') && 
+                    !e.target.closest('#suggestions') && 
+                    !e.target.closest('#dropdownButton')) {
+                    suggestionsDiv?.classList.add('hidden');
+                }
+            });
+
+            // 表单提交处理
+            drawForm?.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                hideError();
+
+                if (!selectedName || !selectedDepartment) {
+                    showError('请选择有效的姓名');
+                    return;
+                }
+
+                try {
+                    await initializeGroups();
+                } catch (error) {
+                    console.error('Error:', error);
+                    showError('操作失败，请重试');
+                }
+            });
+
+            // 添加管理员密码回车键验证
+            document.getElementById('adminPassword')?.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    verifyAdminPassword();
+                }
+            });
+
+            // 在页面卸载时清理订阅
+            window.addEventListener('beforeunload', () => {
+                if (groupsUnsubscribe) {
+                    groupsUnsubscribe();
+                }
+            });
+        } catch (error) {
+            console.error('Initialization error:', error);
+            showError('系统初始化失败，请刷新页面重试');
+        }
+    });
+</script>
+</body>
+</html>

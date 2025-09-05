@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旧制度人员专利提成计算</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif; margin: 24px; }
+        h1 { font-size: 20px; margin: 0 0 16px; }
+        .toolbar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+        button { padding: 6px 12px; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; }
+        th { background: #f9fafb; }
+        tr:nth-child(even) { background: #fcfcfd; }
+        .number { width: 110px; }
+        .select { width: 140px; }
+        .user { width: 120px; }
+        .right { text-align: right; }
+        .muted { color: #6b7280; font-size: 12px; }
+        .danger { color: #b91c1c; }
+        .footer { margin-top: 16px; display: flex; gap: 8px; align-items: center; }
+        .totals { margin-top: 12px; }
+        .row-actions button { padding: 2px 8px; }
+        .input { width: 100%; box-sizing: border-box; }
+    </style>
+}</head>
+<body>
+    <h1>旧制度人员专利提成计算</h1>
+    <div class="toolbar">
+        <button id="addRowBtn">新增条目</button>
+        <button id="calcBtn">计算</button>
+        <button id="clearBtn">清空</button>
+        <span class="muted">按“新增条目”逐条录入：专利类型、是否加速/风险、金额；完成后点击“计算”。</span>
+    </div>
+
+    <table id="itemsTable">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>专利类型</th>
+                <th>加速/风险</th>
+                <th>金额 N</th>
+                <th>T</th>
+                <th>U</th>
+                <th>V</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+    </table>
+
+    <div class="totals" id="totals"></div>
+
+    <script>
+    (function() {
+        const tbody = document.getElementById('tbody');
+        const addRowBtn = document.getElementById('addRowBtn');
+        const calcBtn = document.getElementById('calcBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const totals = document.getElementById('totals');
+
+        const PATENT_TYPES = ['发明', '实用新型'];
+        const FLAGS = ['无', '加速', '风险'];
+
+        function createSelect(options) {
+            const sel = document.createElement('select');
+            sel.className = 'input select';
+            for (const opt of options) {
+                const o = document.createElement('option');
+                o.value = opt; o.textContent = opt; sel.appendChild(o);
+            }
+            return sel;
+        }
+
+        function addRow(defaults) {
+            const idx = tbody.children.length + 1;
+            const tr = document.createElement('tr');
+
+            const tdIndex = document.createElement('td');
+            tdIndex.textContent = idx;
+            tr.appendChild(tdIndex);
+
+            const tdType = document.createElement('td');
+            const selType = createSelect(PATENT_TYPES);
+            tdType.appendChild(selType);
+            tr.appendChild(tdType);
+
+            const tdFlag = document.createElement('td');
+            const selFlag = createSelect(FLAGS);
+            tdFlag.appendChild(selFlag);
+            tr.appendChild(tdFlag);
+
+            const tdN = document.createElement('td');
+            const inputN = document.createElement('input');
+            inputN.type = 'number'; inputN.min = '0'; inputN.step = '1';
+            inputN.className = 'input number right';
+            tdN.appendChild(inputN);
+            tr.appendChild(tdN);
+
+            const tdT = document.createElement('td'); tdT.className = 'right';
+            const tdU = document.createElement('td'); tdU.className = 'right';
+            const tdV = document.createElement('td'); tdV.className = 'right';
+            tr.appendChild(tdT); tr.appendChild(tdU); tr.appendChild(tdV);
+
+            const tdActions = document.createElement('td'); tdActions.className = 'row-actions';
+            const delBtn = document.createElement('button'); delBtn.textContent = '删除';
+            delBtn.addEventListener('click', () => { tr.remove(); renumber(); });
+            tdActions.appendChild(delBtn); tr.appendChild(tdActions);
+
+            tbody.appendChild(tr);
+
+            // apply defaults
+            if (defaults) {
+                if (defaults.type) selType.value = defaults.type;
+                if (defaults.flag) selFlag.value = defaults.flag;
+                if (defaults.n != null) inputN.value = defaults.n;
+                
+            }
+            return tr;
+        }
+
+        function renumber() {
+            Array.from(tbody.children).forEach((tr, i) => {
+                tr.firstChild.textContent = String(i + 1);
+            });
+        }
+
+        function parseNumber(value) {
+            const n = Number(value);
+            return Number.isFinite(n) ? n : 0;
+        }
+
+        // 计算规则实现：根据专利类型、加速/风险、金额N 计算 T
+        function computeRow(type, flag, n) {
+            let T = 0, U = '', V = '';
+
+            if (type === '发明') {
+                if (flag === '加速') {
+                    T = 5000;
+                } else if (n < 7000) {
+                    T = 5000;
+                } else if (n >= 7000 && n < 8000) {
+                    T = 6000;
+                } else if (n >= 8000 && n < 20000) {
+                    T = Math.round(n * 0.75);
+                } else if (n >= 20000 && flag === '风险') {
+                    T = 5000;
+                } else {
+                    // 其他未覆盖情况，沿用 0.75 比例
+                    T = Math.round(n * 0.75);
+                }
+            } else if (type === '实用新型') {
+                // 实用新型
+                if (n < 3000) {
+                    T = 2000;
+                } else if (n >= 3000 && n < 3500) {
+                    T = 2500;
+                } else if (n >= 3500 && n < 7000) {
+                    T = Math.round(n * 0.75);
+                } else {
+                    // >=7000 的情形按 0.75 比例
+                    T = Math.round(n * 0.75);
+                }
+            }
+
+            return { T, U, V };
+        }
+
+        function calculate() {
+            // 第一步：逐行计算 T（不确定 U 前）
+            const rows = Array.from(tbody.children);
+            const computed = rows.map((tr) => {
+                const type = tr.children[1].querySelector('select').value;
+                const flag = tr.children[2].querySelector('select').value;
+                const n = parseNumber(tr.children[3].querySelector('input').value);
+                const { T } = computeRow(type, flag, n);
+                return { tr, type, flag, n, T };
+            });
+
+            const totalT = computed.reduce((s, r) => s + (r.T || 0), 0);
+
+            // 统一 U：基于全部条目的 T 合计
+            let unifiedU = '';
+            if (totalT < 30000) unifiedU = '12%';
+            else if (totalT < 50000) unifiedU = '13%';
+            else unifiedU = '13%';
+
+            // 第二步：回填每行 T/U/V
+            let sumV = 0;
+            computed.forEach((r) => {
+                // 风险：V 直接 1000，U 为空；否则按统一 U
+                let V;
+                if (r.flag === '风险') {
+                    V = 1000;
+                } else {
+                    const pct = Number(unifiedU.replace('%','')) / 100;
+                    V = Math.round(r.T * pct);
+                }
+                r.tr.children[4].textContent = r.T ? String(r.T) : '';
+                r.tr.children[5].textContent = r.flag === '风险' ? '' : unifiedU;
+                r.tr.children[6].textContent = V !== '' ? String(V) : '';
+                if (V !== '') sumV += Number(V);
+            });
+
+            totals.textContent = `全部条目：T合计 ${totalT}，U统一 ${unifiedU}，V合计 ${sumV}`;
+        }
+
+        addRowBtn.addEventListener('click', () => addRow());
+        clearBtn.addEventListener('click', () => { tbody.innerHTML = ''; totals.textContent = ''; });
+        calcBtn.addEventListener('click', calculate);
+
+        // 初始化一行
+        addRow();
+    })();
+    </script>
+</body>
+</html>
+
