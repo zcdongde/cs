@@ -256,71 +256,72 @@
             <h1 class="text-4xl font-bold text-white mb-12 text-center tracking-wider">凝心聚力，共赴新程</h1>
             
             <button onclick="showDrawPage()" class="btn mb-4">
-                进入分组
+                开始分组
             </button>
-            
-            <button onclick="toggleAdminLogin()" class="btn mb-4">
-                管理员登录
-            </button>
-
-            <div id="adminLoginForm" class="admin-login-form">
-                <input 
-                    type="password" 
-                    id="adminPassword" 
-                    placeholder="请输入管理员密码" 
-                    class="input-field"
-                >
-                <button onclick="verifyAdminPassword()" class="btn">
-                    验证
-                </button>
-                <div id="adminError" class="error-message hidden"></div>
-            </div>
         </div>
     </div>
 
     <!-- 分组页面 -->
     <div id="homePage" class="page">
         <div class="container mx-auto px-4 py-8">
-            <div class="max-w-2xl mx-auto text-center">
-                <h1 class="text-4xl font-bold text-white mb-4 tracking-wider">凝心聚力，共赴新程</h1>
-                <h2 class="text-2xl text-white mb-12 opacity-90">活动随机分组</h2>
+            <div class="max-w-6xl mx-auto">
+                <h1 class="text-4xl font-bold text-white mb-4 tracking-wider text-center">凝心聚力，共赴新程</h1>
+                <h2 class="text-2xl text-white mb-8 opacity-90 text-center">活动随机分组</h2>
                 
-                <form id="drawForm" class="glass-effect rounded-xl p-8 mb-8">
-                    <div class="relative">
-                        <div class="flex">
-                            <input 
-                                type="text" 
-                                id="nameInput" 
-                                class="flex-1 p-3 bg-white bg-opacity-20 text-white rounded-l border-0 focus:outline-none focus:ring-2 focus:ring-white placeholder-white placeholder-opacity-70" 
-                                placeholder="请输入或选择姓名"
-                                autocomplete="off"
-                            >
-                            <button 
-                                type="button" 
-                                id="dropdownButton"
-                                class="px-4 bg-white bg-opacity-20 text-white border-0 rounded-r hover:bg-opacity-30 transition-all"
-                            >
-                                ▼
-                            </button>
-                        </div>
-                        <div id="suggestions" class="absolute z-10 w-full mt-1 bg-white bg-opacity-20 backdrop-blur-md border border-white border-opacity-20 rounded-lg shadow-lg hidden text-white"></div>
+                <!-- 全部待分组人员显示区域 -->
+                <div class="glass-effect rounded-xl p-6 mb-8">
+                    <h3 class="text-xl font-bold text-white mb-4 text-center">全部待分组人员</h3>
+                    <div id="allMembersContainer" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                        <!-- 人员列表将通过 JavaScript 动态生成 -->
                     </div>
-                    
-                    <div id="errorMessage" class="text-red-300 text-sm mt-2 hidden"></div>
-                    
-                    <button 
-                        type="submit" 
-                        id="submitButton"
-                        class="w-full mt-6 p-3 bg-white bg-opacity-20 text-white rounded-lg hover:bg-opacity-30 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg font-semibold tracking-wide"
-                        disabled
-                    >
-                        开始分组
-                    </button>
-                </form>
+                </div>
 
-                <button onclick="returnToInitialPage()" class="btn mt-4">
-                    返回首页
-                </button>
+                <!-- 开始随机分组控件 -->
+                <div class="text-center mb-8">
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                        <button 
+                            id="startGroupingButton"
+                            onclick="startRandomGrouping()"
+                            class="btn text-xl py-4 px-8 bg-green-500 bg-opacity-20 hover:bg-opacity-30 transform hover:scale-105 transition-all duration-200"
+                        >
+                            <span class="flex items-center justify-center">
+                                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                                开始随机分组
+                            </span>
+                        </button>
+                        
+                        <button 
+                            id="clearGroupingButton"
+                            onclick="clearAllGrouping()"
+                            class="btn text-xl py-4 px-8 bg-red-500 bg-opacity-20 hover:bg-opacity-30 transform hover:scale-105 transition-all duration-200"
+                        >
+                            <span class="flex items-center justify-center">
+                                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                清除分组
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 分组结果显示区域 -->
+                <div id="groupingResults" class="hidden">
+                    <div class="glass-effect rounded-xl p-6">
+                        <h3 class="text-xl font-bold text-white mb-4 text-center">分组结果</h3>
+                        <div id="resultsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            <!-- 分组结果将在这里动态显示 -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button onclick="returnToInitialPage()" class="btn">
+                        返回首页
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -344,45 +345,6 @@
         </div>
     </div>
 
-    <!-- 管理员页面 -->
-    <div id="adminPage" class="page">
-        <div class="container mx-auto px-4 py-8">
-            <h1 class="text-4xl font-bold text-white text-center mb-8">管理员界面</h1>
-            
-            <!-- 未分组人员板块 -->
-            <div class="mb-8">
-                <h2 class="text-2xl font-bold text-white mb-4">未分组人员</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4" id="departmentBlocks">
-                    <!-- 各部门板块将通过 JavaScript 动态生成 -->
-                </div>
-            </div>
-
-            <!-- 分组情况 -->
-            <div>
-                <h2 class="text-2xl font-bold text-white mb-4">分组情况</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4" id="adminGroupsContainer">
-                    <!-- 分组结果将通过 JavaScript 动态生成 -->
-                </div>
-            </div>
-
-            <div class="text-center mt-8 space-y-4">
-                <button 
-                    onclick="debouncedClearAllGroups()" 
-                    class="btn bg-red-500 bg-opacity-20 hover:bg-opacity-30 transform hover:scale-105 transition-all duration-200"
-                >
-                    <span class="flex items-center justify-center">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        清除所有分组数据
-                    </span>
-                </button>
-                <button onclick="returnToInitialPage()" class="btn">
-                    返回首页
-                </button>
-            </div>
-        </div>
-    </div>
 
     <!-- 错误提示容器 -->
     <div id="errorToast" class="hidden"></div>
@@ -402,13 +364,9 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 全局变量
-    const ADMIN_PASSWORD = 'wz202596';
-    let isAdminLoginVisible = false;
     let groupsUnsubscribe = null;
     let retryCount = 0;
     const MAX_RETRIES = 3;
-    let clearInProgress = false;
 
     // 部门成员数据
     const departmentMembers = {
@@ -419,8 +377,6 @@
         '人资财经行政组': ['宋怡萍', '刘珂珂', '吴文波', '王玉丽']
     };
 
-    let selectedName = '';
-    let selectedDepartment = '';
 
     // 页面控制函数
     function showPage(pageId) {
@@ -435,7 +391,7 @@
             targetPage.classList.add('active');
             
             // 根据页面类型启动相应的实时更新
-            if (pageId === 'adminPage' || pageId === 'resultPage') {
+            if (pageId === 'resultPage') {
                 startRealtimeUpdates();
             } else {
                 // 如果不是需要实时更新的页面，取消订阅
@@ -451,7 +407,7 @@
 
     // 获取当前显示的页面
     function getCurrentPage() {
-        const pages = ['initialPage', 'homePage', 'resultPage', 'adminPage'];
+        const pages = ['initialPage', 'homePage', 'resultPage'];
         for (const pageId of pages) {
             const page = document.getElementById(pageId);
             if (page && page.classList.contains('active')) {
@@ -464,54 +420,320 @@
     // 显示分组页面
     function showDrawPage() {
         showPage('homePage');
+        displayAllMembers();
     }
 
-    // 显示管理员页面
-    function showAdminPage() {
-        showPage('adminPage');
+    // 显示全部待分组人员
+    function displayAllMembers() {
+        const container = document.getElementById('allMembersContainer');
+        if (!container) return;
+
+        container.innerHTML = '';
+        
+        Object.entries(departmentMembers).forEach(([deptName, members]) => {
+            members.forEach(name => {
+                const memberDiv = document.createElement('div');
+                memberDiv.className = 'bg-white bg-opacity-10 rounded-lg p-3 text-center text-white hover:bg-opacity-20 transition-all';
+                memberDiv.innerHTML = `
+                    <div class="font-medium">${name}</div>
+                    <div class="text-sm opacity-75">${deptName}</div>
+                `;
+                container.appendChild(memberDiv);
+            });
+        });
+    }
+
+    // 开始随机分组
+    async function startRandomGrouping() {
+        const button = document.getElementById('startGroupingButton');
+        const resultsDiv = document.getElementById('groupingResults');
+        
+        if (!button || !resultsDiv) {
+            console.error('找不到按钮或结果容器');
+            return;
+        }
+
+        console.log('开始分组...');
+
+        // 禁用按钮并显示加载状态
+        button.disabled = true;
+        button.innerHTML = `
+            <span class="flex items-center justify-center">
+                <svg class="animate-spin w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                正在分组中...
+            </span>
+        `;
+
+        try {
+            console.log('开始执行分组算法...');
+            // 获取所有人员并按部门分组
+            const membersByDepartment = {};
+            Object.entries(departmentMembers).forEach(([deptName, members]) => {
+                membersByDepartment[deptName] = [...members].sort(() => Math.random() - 0.5);
+            });
+            
+            // 创建7个分组
+            const groups = Array(7).fill().map((_, i) => ({
+                groupId: i,
+                members: []
+            }));
+
+            // 智能分组算法：确保每个组中同部门人员不超过2人
+            const departmentQueues = Object.keys(membersByDepartment).map(deptName => ({
+                department: deptName,
+                members: membersByDepartment[deptName],
+                index: 0
+            }));
+
+            // 按部门大小排序，优先分配人数多的部门
+            departmentQueues.sort((a, b) => b.members.length - a.members.length);
+
+            // 分配人员到各组
+            let groupIndex = 0;
+            let totalAssigned = 0;
+            const totalMembers = Object.values(membersByDepartment).flat().length;
+
+            while (totalAssigned < totalMembers) {
+                let assigned = false;
+                
+                // 尝试为当前组分配一个人员
+                for (const deptQueue of departmentQueues) {
+                    if (deptQueue.index < deptQueue.members.length) {
+                        const memberName = deptQueue.members[deptQueue.index];
+                        const currentGroup = groups[groupIndex];
+                        
+                        // 检查当前组中该部门的人数
+                        const sameDeptCount = currentGroup.members.filter(m => m.department === deptQueue.department).length;
+                        
+                        // 如果该部门在当前组的人数少于2人，则可以分配
+                        if (sameDeptCount < 2) {
+                            currentGroup.members.push({
+                                name: memberName,
+                                department: deptQueue.department,
+                                isLeader: false,
+                                timestamp: Date.now()
+                            });
+                            
+                            deptQueue.index++;
+                            totalAssigned++;
+                            assigned = true;
+                            break;
+                        }
+                    }
+                }
+                
+                // 如果没有成功分配任何人到当前组，强制分配下一个可用的人员
+                if (!assigned) {
+                    for (const deptQueue of departmentQueues) {
+                        if (deptQueue.index < deptQueue.members.length) {
+                            const memberName = deptQueue.members[deptQueue.index];
+                            groups[groupIndex].members.push({
+                                name: memberName,
+                                department: deptQueue.department,
+                                isLeader: false,
+                                timestamp: Date.now()
+                            });
+                            
+                            deptQueue.index++;
+                            totalAssigned++;
+                            break;
+                        }
+                    }
+                }
+                
+                // 移动到下一个组
+                groupIndex = (groupIndex + 1) % 7;
+            }
+
+            // 为每组随机选择组长
+            groups.forEach(group => {
+                if (group.members.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * group.members.length);
+                    group.members[randomIndex].isLeader = true;
+                }
+            });
+
+            console.log('分组算法完成，开始保存到Firebase...');
+            
+            // 保存到Firebase
+            const groupsRef = db.collection('groups');
+            const batch = db.batch();
+            
+            groups.forEach(group => {
+                batch.set(groupsRef.doc(`group${group.groupId}`), group);
+            });
+            
+            await batch.commit();
+            console.log('Firebase保存完成');
+
+            // 显示分组结果
+            console.log('开始显示分组结果...');
+            displayGroupingResults(groups);
+            resultsDiv.classList.remove('hidden');
+            console.log('分组结果显示完成');
+
+            // 恢复按钮状态
+            button.disabled = false;
+            button.innerHTML = `
+                <span class="flex items-center justify-center">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    重新分组
+                </span>
+            `;
+
+            showError('随机分组完成！', true);
+
+        } catch (error) {
+            console.error('分组失败:', error);
+            showError('分组失败: ' + error.message);
+            
+            // 恢复按钮状态
+            button.disabled = false;
+            button.innerHTML = `
+                <span class="flex items-center justify-center">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    开始随机分组
+                </span>
+            `;
+        }
+    }
+
+    // 显示分组结果
+    function displayGroupingResults(groups) {
+        console.log('displayGroupingResults 被调用，groups:', groups);
+        const container = document.getElementById('resultsContainer');
+        if (!container) {
+            console.error('找不到 resultsContainer 元素');
+            return;
+        }
+
+        console.log('开始渲染分组结果...');
+        container.innerHTML = '';
+        
+        groups.forEach((group, index) => {
+            console.log(`渲染第${index + 1}组:`, group);
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'bg-white bg-opacity-10 rounded-xl p-4 hover:bg-opacity-20 transition-all';
+
+            const members = group.members || [];
+            console.log(`第${index + 1}组成员:`, members);
+            
+            // 对成员进行排序，确保组长在第一位
+            const sortedMembers = [...members].sort((a, b) => {
+                if (a.isLeader) return -1;
+                if (b.isLeader) return 1;
+                return 0;
+            });
+
+            groupDiv.innerHTML = `
+                <h4 class="text-lg font-bold mb-3 text-center text-white border-b border-white border-opacity-20 pb-2">
+                    第${index + 1}组 (${members.length}人)
+                </h4>
+                <div class="space-y-2">
+                    ${sortedMembers.map(member => `
+                        <div class="flex items-center justify-between p-2 rounded-lg ${member.isLeader ? 'bg-yellow-500 bg-opacity-20' : 'bg-white bg-opacity-5'}">
+                            <span class="text-white font-medium">${member.name}</span>
+                            ${member.isLeader ? '<span class="bg-yellow-500 bg-opacity-30 px-2 py-1 rounded-full text-xs text-white">组长</span>' : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            container.appendChild(groupDiv);
+        });
+        
+        console.log('分组结果渲染完成');
+    }
+
+    // 清除所有分组
+    async function clearAllGrouping() {
+        const button = document.getElementById('clearGroupingButton');
+        const resultsDiv = document.getElementById('groupingResults');
+        
+        if (!button || !resultsDiv) {
+            console.error('找不到按钮或结果容器');
+            return;
+        }
+
+        // 确认对话框
+        if (!confirm('确定要清除所有分组数据吗？此操作将清空所有分组结果。')) {
+            return;
+        }
+
+        console.log('开始清除分组...');
+
+        // 禁用按钮并显示加载状态
+        button.disabled = true;
+        button.innerHTML = `
+            <span class="flex items-center justify-center">
+                <svg class="animate-spin w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                正在清除...
+            </span>
+        `;
+
+        try {
+            console.log('开始清除Firebase数据...');
+            
+            // 清除Firebase中的所有分组数据
+            const groupsRef = db.collection('groups');
+            const batch = db.batch();
+            
+            // 初始化7个空分组
+            for (let i = 0; i < 7; i++) {
+                const groupDoc = groupsRef.doc(`group${i}`);
+                batch.set(groupDoc, {
+                    groupId: i,
+                    members: []
+                }, { merge: true });
+            }
+            
+            await batch.commit();
+            console.log('Firebase数据清除完成');
+
+            // 隐藏分组结果
+            resultsDiv.classList.add('hidden');
+            console.log('分组结果已隐藏');
+
+            // 恢复按钮状态
+            button.disabled = false;
+            button.innerHTML = `
+                <span class="flex items-center justify-center">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    清除分组
+                </span>
+            `;
+
+            showError('所有分组数据已清除！', true);
+
+        } catch (error) {
+            console.error('清除分组失败:', error);
+            showError('清除分组失败: ' + error.message);
+            
+            // 恢复按钮状态
+            button.disabled = false;
+            button.innerHTML = `
+                <span class="flex items-center justify-center">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    清除分组
+                </span>
+            `;
+        }
     }
 
     // 返回初始页面
     function returnToInitialPage() {
         showPage('initialPage');
-        if (isAdminLoginVisible) {
-            toggleAdminLogin();
-        }
-    }
-
-    // 切换管理员登录表单
-    function toggleAdminLogin() {
-        const adminLoginForm = document.getElementById('adminLoginForm');
-        const adminError = document.getElementById('adminError');
-        
-        isAdminLoginVisible = !isAdminLoginVisible;
-        
-        if (isAdminLoginVisible) {
-            adminLoginForm.classList.add('show');
-            document.getElementById('adminPassword').value = '';
-            if (adminError) {
-                adminError.classList.add('hidden');
-            }
-        } else {
-            adminLoginForm.classList.remove('show');
-        }
-    }
-
-    // 验证管理员密码
-    function verifyAdminPassword() {
-        const password = document.getElementById('adminPassword').value;
-        const adminError = document.getElementById('adminError');
-        
-        if (password === ADMIN_PASSWORD) {
-            showAdminPage();
-            toggleAdminLogin();
-        } else {
-            adminError.textContent = '密码错误';
-            adminError.classList.remove('hidden');
-            const input = document.getElementById('adminPassword');
-            input.classList.add('shake');
-            setTimeout(() => input.classList.remove('shake'), 500);
-        }
     }
 
     // 获取所有成员名单
@@ -562,41 +784,6 @@
             errorMessage.classList.add('hidden');
         }
     }
-// 更新未分组人员显示
-    function updateUnassignedMembers(groups) {
-        const departmentBlocks = document.getElementById('departmentBlocks');
-        if (!departmentBlocks) return;
-
-        // 获取所有已分组的人员
-        const assignedMembers = new Set(
-            groups.flatMap(group => group.members ? group.members.map(member => member.name) : [])
-        );
-
-        // 更新每个部门板块
-        departmentBlocks.innerHTML = '';
-
-        Object.entries(departmentMembers).forEach(([deptName, members]) => {
-            const unassignedMembers = members.filter(name => !assignedMembers.has(name));
-            
-            const deptBlock = document.createElement('div');
-            deptBlock.className = 'glass-effect rounded-xl p-4';
-            
-            deptBlock.innerHTML = `
-                <h3 class="text-lg font-bold text-white mb-2 pb-2 border-b border-white border-opacity-20">
-                    ${deptName} (${unassignedMembers.length}人)
-                </h3>
-                <div class="text-white space-y-1">
-                    ${unassignedMembers.map(name => `
-                        <div class="px-2 py-1 rounded hover:bg-white hover:bg-opacity-10">
-                            ${name}
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-            
-            departmentBlocks.appendChild(deptBlock);
-        });
-    }
 
     // 更新分组结果显示
     function updateResults(groups) {
@@ -635,46 +822,6 @@
         });
     }
 
-    // 更新管理员界面的分组显示
-    function updateAdminGroupsView(groups) {
-        const container = document.getElementById('adminGroupsContainer');
-        if (!container) return;
-
-        container.innerHTML = '';
-        
-        groups.forEach((group, index) => {
-            const groupDiv = document.createElement('div');
-            groupDiv.className = 'group-result glass-effect rounded-xl p-4';
-
-            const members = group.members || [];
-            // 对成员进行排序，确保组长在第一位
-            const sortedMembers = [...members].sort((a, b) => {
-                if (a.isLeader) return -1;
-                if (b.isLeader) return 1;
-                return 0;
-            });
-
-            groupDiv.innerHTML = `
-                <h3 class="text-lg font-bold mb-4 text-center text-white border-b border-white border-opacity-20 pb-2">
-                    第${index + 1}组
-                </h3>
-                <div class="members-list">
-                    ${sortedMembers.map(member => `
-                        <div class="member-item ${member.isLeader ? 'leader' : ''} whitespace-nowrap overflow-hidden text-ellipsis">
-                            <span class="text-white">
-                                ${member.name}
-                                <span class="text-white opacity-75 text-sm">
-                                    (${member.department})
-                                </span>
-                                ${member.isLeader ? '<span class="leader-badge">组长</span>' : ''}
-                            </span>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-            container.appendChild(groupDiv);
-        });
-    }
 
     // 实时更新函数
     function startRealtimeUpdates() {
@@ -699,10 +846,6 @@
                 if (currentPage === 'resultPage') {
                     console.log('Updating results view');
                     updateResults(groups);
-                } else if (currentPage === 'adminPage') {
-                    console.log('Updating admin view');
-                    updateAdminGroupsView(groups);
-                    updateUnassignedMembers(groups);
                 }
             }, error => {
                 console.error("实时更新错误:", error);
@@ -710,190 +853,7 @@
             });
     }
 
-    // 初始化分组
-    async function initializeGroups() {
-        try {
-            if (!selectedName || !selectedDepartment) {
-                showPage('homePage');
-                return;
-            }
 
-            const groupsRef = db.collection('groups');
-            const snapshot = await groupsRef.get();
-            
-            // 检查是否已经分组
-            let alreadyGrouped = false;
-            snapshot.forEach(doc => {
-                const group = doc.data();
-                if (group.members && group.members.some(m => m.name === selectedName)) {
-                    alreadyGrouped = true;
-                }
-            });
-
-            if (alreadyGrouped) {
-                showPage('resultPage');
-                return;
-            }
-
-            // 如果是空集合，初始化分组
-            if (snapshot.empty) {
-                const batch = db.batch();
-                for (let i = 0; i < 7; i++) {
-                    batch.set(groupsRef.doc(`group${i}`), {
-                        groupId: i,
-                        members: []
-                    });
-                }
-                await batch.commit();
-            }
-
-            // 重新获取最新数据
-            const updatedSnapshot = await groupsRef.get();
-            let groups = [];
-            let totalMembers = 0;
-
-            updatedSnapshot.forEach(doc => {
-                const group = doc.data();
-                if (group.members) {
-                    groups.push(group);
-                    totalMembers += group.members.length;
-                }
-            });
-
-            let targetGroupId = -1;
-
-            // 前14个人的随机分配逻辑
-            if (totalMembers < 14) {
-                // 获取所有可用的组（人数最少的组）
-                const groupSizes = groups.map(g => (g.members || []).length);
-                const minSize = Math.min(...groupSizes);
-                const availableGroups = groups.filter(g => (g.members || []).length === minSize);
-                
-                // 随机选择一个可用的组
-                targetGroupId = availableGroups[Math.floor(Math.random() * availableGroups.length)].groupId;
-            } else {
-                // 第15个人开始的分配逻辑
-                // 查找可以分配的组（同部门人数不超过2的组）
-                const availableGroups = groups.filter(group => {
-                    const departmentMembers = (group.members || []).filter(m => m.department === selectedDepartment);
-                    return departmentMembers.length < 2;
-                });
-
-                if (availableGroups.length > 0) {
-                    // 在符合条件的组中随机选择一个
-                    const randomGroup = availableGroups[Math.floor(Math.random() * availableGroups.length)];
-                    targetGroupId = randomGroup.groupId;
-                } else {
-                    // 如果没有符合条件的组，选择同部门人数最少的组
-                    const departmentCounts = groups.map(group => ({
-                        groupId: group.groupId,
-                        count: (group.members || []).filter(m => m.department === selectedDepartment).length
-                    }));
-                    
-                    const minCount = Math.min(...departmentCounts.map(dc => dc.count));
-                    const minGroups = departmentCounts.filter(dc => dc.count === minCount);
-                    
-                    targetGroupId = minGroups[Math.floor(Math.random() * minGroups.length)].groupId;
-                }
-            }
-
-            if (targetGroupId === -1) {
-                showError('无法找到合适的分组');
-                return;
-            }
-
-            await groupsRef.doc(`group${targetGroupId}`).update({
-                members: firebase.firestore.FieldValue.arrayUnion({
-                    name: selectedName,
-                    department: selectedDepartment,
-                    isLeader: false,
-                    timestamp: Date.now()
-                })
-            });
-
-            // 当所有36个人都分配完成后，为每组随机选择一个组长
-            if (totalMembers + 1 === 36) {
-                for (const group of groups) {
-                    const updatedGroup = (await groupsRef.doc(`group${group.groupId}`).get()).data();
-                    if (updatedGroup.members && updatedGroup.members.length > 0) {
-                        const randomIndex = Math.floor(Math.random() * updatedGroup.members.length);
-                        const updatedMembers = updatedGroup.members.map((member, index) => ({
-                            ...member,
-                            isLeader: index === randomIndex
-                        }));
-                        await groupsRef.doc(`group${group.groupId}`).update({
-                            members: updatedMembers
-                        });
-                    }
-                }
-            }
-
-            showPage('resultPage');
-
-        } catch (error) {
-            console.error('分组操作失败:', error);
-            showError('分组操作失败: ' + error.message);
-        }
-    }
-
-    // 清除所有分组数据
-    async function clearAllGroups() {
-        if (!confirm('确定要清除所有分组数据吗？此操作将清空所有分组，所有用户需要重新进行分组。')) {
-            return;
-        }
-
-        try {
-            const groupsRef = db.collection('groups');
-            const batch = db.batch();
-            
-            // 初始化7个空分组
-            for (let i = 0; i < 7; i++) {
-                const groupDoc = groupsRef.doc(`group${i}`);
-                batch.set(groupDoc, {
-                    groupId: i,
-                    members: []
-                }, { merge: true });
-            }
-            
-            await batch.commit();
-            
-            showError('所有分组数据已清除，用户可重新进行分组', true);
-            
-            const emptyGroups = Array(7).fill().map((_, i) => ({
-                groupId: i,
-                members: []
-            }));
-            
-            updateAdminGroupsView(emptyGroups);
-            updateUnassignedMembers(emptyGroups);
-
-            // 重置全局状态
-            selectedName = '';
-            selectedDepartment = '';
-
-            // 更新分组页面的输入框状态
-            const nameInput = document.getElementById('nameInput');
-            const submitButton = document.getElementById('submitButton');
-            if (nameInput) nameInput.value = '';
-            if (submitButton) submitButton.disabled = true;
-
-        } catch (error) {
-            console.error('清除数据失败:', error);
-            showError('清除数据失败: ' + error.message);
-        }
-    }
-
-    // 防抖处理的清除功能
-    async function debouncedClearAllGroups() {
-        if (clearInProgress) {
-            showError('清除操作正在进行中，请稍候...');
-            return;
-        }
-
-        clearInProgress = true;
-        await clearAllGroups();
-        clearInProgress = false;
-    }
 
     // 错误处理和重试机制
     function handleUpdateError(error) {
@@ -910,34 +870,6 @@
         }
     }
 
-    // 显示姓名建议
-    function showSuggestions(suggestions) {
-        const suggestionsDiv = document.getElementById('suggestions');
-        suggestionsDiv.innerHTML = '';
-        
-        suggestions.forEach(name => {
-            const div = document.createElement('div');
-            div.className = 'suggestion-item';
-            div.textContent = name;
-            div.onclick = () => selectName(name);
-            suggestionsDiv.appendChild(div);
-        });
-        
-        suggestionsDiv.classList.remove('hidden');
-    }
-
-    // 选择姓名
-    function selectName(name) {
-        const nameInput = document.getElementById('nameInput');
-        const suggestionsDiv = document.getElementById('suggestions');
-        const submitButton = document.getElementById('submitButton');
-        
-        nameInput.value = name;
-        selectedName = name;
-        selectedDepartment = getDepartmentByName(name);
-        suggestionsDiv.classList.add('hidden');
-        submitButton.disabled = false;
-    }
 
     // 页面加载完成后的初始化
     document.addEventListener('DOMContentLoaded', async () => {
@@ -961,68 +893,7 @@
             // 初始化页面显示
             showPage('initialPage');
             
-            // 添加姓名输入事件监听
-            const nameInput = document.getElementById('nameInput');
-            const dropdownButton = document.getElementById('dropdownButton');
-            const suggestionsDiv = document.getElementById('suggestions');
-            const drawForm = document.getElementById('drawForm');
-
-            // 姓名输入处理
-            nameInput?.addEventListener('input', (e) => {
-                const input = e.target.value.trim();
-                if (input) {
-                    const suggestions = getAllNames().filter(name => 
-                        name.toLowerCase().includes(input.toLowerCase())
-                    );
-                    showSuggestions(suggestions);
-                } else {
-                    suggestionsDiv.classList.add('hidden');
-                    document.getElementById('submitButton').disabled = true;
-                }
-            });
-
-            // 下拉按钮点击处理
-            dropdownButton?.addEventListener('click', () => {
-                if (suggestionsDiv.classList.contains('hidden')) {
-                    showSuggestions(getAllNames());
-                } else {
-                    suggestionsDiv.classList.add('hidden');
-                }
-            });
-
-            // 点击外部关闭建议列表
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('#nameInput') && 
-                    !e.target.closest('#suggestions') && 
-                    !e.target.closest('#dropdownButton')) {
-                    suggestionsDiv?.classList.add('hidden');
-                }
-            });
-
-            // 表单提交处理
-            drawForm?.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                hideError();
-
-                if (!selectedName || !selectedDepartment) {
-                    showError('请选择有效的姓名');
-                    return;
-                }
-
-                try {
-                    await initializeGroups();
-                } catch (error) {
-                    console.error('Error:', error);
-                    showError('操作失败，请重试');
-                }
-            });
-
-            // 添加管理员密码回车键验证
-            document.getElementById('adminPassword')?.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    verifyAdminPassword();
-                }
-            });
+            // 页面初始化完成，无需额外的表单处理
 
             // 在页面卸载时清理订阅
             window.addEventListener('beforeunload', () => {
