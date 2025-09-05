@@ -444,7 +444,7 @@
     }
 
     // 开始随机分组
-    async function startRandomGrouping() {
+    function startRandomGrouping() {
         const button = document.getElementById('startGroupingButton');
         const resultsDiv = document.getElementById('groupingResults');
         
@@ -466,142 +466,131 @@
             </span>
         `;
 
-        try {
-            console.log('开始执行分组算法...');
-            // 获取所有人员并按部门分组
-            const membersByDepartment = {};
-            Object.entries(departmentMembers).forEach(([deptName, members]) => {
-                membersByDepartment[deptName] = [...members].sort(() => Math.random() - 0.5);
-            });
+        console.log('开始执行分组算法...');
+        
+        // 获取所有人员并按部门分组
+        const membersByDepartment = {};
+        Object.entries(departmentMembers).forEach(([deptName, members]) => {
+            membersByDepartment[deptName] = [...members].sort(() => Math.random() - 0.5);
+        });
+        
+        console.log('各部门人员随机打乱完成');
+        
+        // 创建7个分组
+        const groups = Array(7).fill().map((_, i) => ({
+            groupId: i,
+            members: []
+        }));
+
+        // 智能分组算法：确保每个组中同部门人员不超过2人
+        const departmentQueues = Object.keys(membersByDepartment).map(deptName => ({
+            department: deptName,
+            members: membersByDepartment[deptName],
+            index: 0
+        }));
+
+        // 按部门大小排序，优先分配人数多的部门
+        departmentQueues.sort((a, b) => b.members.length - a.members.length);
+
+        // 分配人员到各组
+        let groupIndex = 0;
+        let totalAssigned = 0;
+        const totalMembers = Object.values(membersByDepartment).flat().length;
+        let loopCount = 0;
+        const maxLoops = totalMembers * 2; // 防止无限循环
+
+        console.log(`开始分配 ${totalMembers} 个人员到7个组`);
+
+        while (totalAssigned < totalMembers && loopCount < maxLoops) {
+            loopCount++;
+            let assigned = false;
             
-            // 创建7个分组
-            const groups = Array(7).fill().map((_, i) => ({
-                groupId: i,
-                members: []
-            }));
-
-            // 智能分组算法：确保每个组中同部门人员不超过2人
-            const departmentQueues = Object.keys(membersByDepartment).map(deptName => ({
-                department: deptName,
-                members: membersByDepartment[deptName],
-                index: 0
-            }));
-
-            // 按部门大小排序，优先分配人数多的部门
-            departmentQueues.sort((a, b) => b.members.length - a.members.length);
-
-            // 分配人员到各组
-            let groupIndex = 0;
-            let totalAssigned = 0;
-            const totalMembers = Object.values(membersByDepartment).flat().length;
-
-            while (totalAssigned < totalMembers) {
-                let assigned = false;
-                
-                // 尝试为当前组分配一个人员
+            // 尝试为当前组分配一个人员
+            for (const deptQueue of departmentQueues) {
+                if (deptQueue.index < deptQueue.members.length) {
+                    const memberName = deptQueue.members[deptQueue.index];
+                    const currentGroup = groups[groupIndex];
+                    
+                    // 检查当前组中该部门的人数
+                    const sameDeptCount = currentGroup.members.filter(m => m.department === deptQueue.department).length;
+                    
+                    // 如果该部门在当前组的人数少于2人，则可以分配
+                    if (sameDeptCount < 2) {
+                        currentGroup.members.push({
+                            name: memberName,
+                            department: deptQueue.department,
+                            isLeader: false,
+                            timestamp: Date.now()
+                        });
+                        
+                        deptQueue.index++;
+                        totalAssigned++;
+                        assigned = true;
+                        console.log(`分配 ${memberName} (${deptQueue.department}) 到第${groupIndex + 1}组`);
+                        break;
+                    }
+                }
+            }
+            
+            // 如果没有成功分配任何人到当前组，强制分配下一个可用的人员
+            if (!assigned) {
                 for (const deptQueue of departmentQueues) {
                     if (deptQueue.index < deptQueue.members.length) {
                         const memberName = deptQueue.members[deptQueue.index];
-                        const currentGroup = groups[groupIndex];
+                        groups[groupIndex].members.push({
+                            name: memberName,
+                            department: deptQueue.department,
+                            isLeader: false,
+                            timestamp: Date.now()
+                        });
                         
-                        // 检查当前组中该部门的人数
-                        const sameDeptCount = currentGroup.members.filter(m => m.department === deptQueue.department).length;
-                        
-                        // 如果该部门在当前组的人数少于2人，则可以分配
-                        if (sameDeptCount < 2) {
-                            currentGroup.members.push({
-                                name: memberName,
-                                department: deptQueue.department,
-                                isLeader: false,
-                                timestamp: Date.now()
-                            });
-                            
-                            deptQueue.index++;
-                            totalAssigned++;
-                            assigned = true;
-                            break;
-                        }
+                        deptQueue.index++;
+                        totalAssigned++;
+                        console.log(`强制分配 ${memberName} (${deptQueue.department}) 到第${groupIndex + 1}组`);
+                        break;
                     }
                 }
-                
-                // 如果没有成功分配任何人到当前组，强制分配下一个可用的人员
-                if (!assigned) {
-                    for (const deptQueue of departmentQueues) {
-                        if (deptQueue.index < deptQueue.members.length) {
-                            const memberName = deptQueue.members[deptQueue.index];
-                            groups[groupIndex].members.push({
-                                name: memberName,
-                                department: deptQueue.department,
-                                isLeader: false,
-                                timestamp: Date.now()
-                            });
-                            
-                            deptQueue.index++;
-                            totalAssigned++;
-                            break;
-                        }
-                    }
-                }
-                
-                // 移动到下一个组
-                groupIndex = (groupIndex + 1) % 7;
             }
-
-            // 为每组随机选择组长
-            groups.forEach(group => {
-                if (group.members.length > 0) {
-                    const randomIndex = Math.floor(Math.random() * group.members.length);
-                    group.members[randomIndex].isLeader = true;
-                }
-            });
-
-            console.log('分组算法完成，开始保存到Firebase...');
             
-            // 保存到Firebase
-            const groupsRef = db.collection('groups');
-            const batch = db.batch();
-            
-            groups.forEach(group => {
-                batch.set(groupsRef.doc(`group${group.groupId}`), group);
-            });
-            
-            await batch.commit();
-            console.log('Firebase保存完成');
-
-            // 显示分组结果
-            console.log('开始显示分组结果...');
-            displayGroupingResults(groups);
-            resultsDiv.classList.remove('hidden');
-            console.log('分组结果显示完成');
-
-            // 恢复按钮状态
-            button.disabled = false;
-            button.innerHTML = `
-                <span class="flex items-center justify-center">
-                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                    重新分组
-                </span>
-            `;
-
-            showError('随机分组完成！', true);
-
-        } catch (error) {
-            console.error('分组失败:', error);
-            showError('分组失败: ' + error.message);
-            
-            // 恢复按钮状态
-            button.disabled = false;
-            button.innerHTML = `
-                <span class="flex items-center justify-center">
-                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                    开始随机分组
-                </span>
-            `;
+            // 移动到下一个组
+            groupIndex = (groupIndex + 1) % 7;
         }
+
+        if (loopCount >= maxLoops) {
+            console.error('分组算法可能陷入无限循环，强制退出');
+            showError('分组算法异常，请重试');
+            return;
+        }
+
+        console.log(`分组完成，共分配 ${totalAssigned} 个人员`);
+
+        // 为每组随机选择组长
+        groups.forEach(group => {
+            if (group.members.length > 0) {
+                const randomIndex = Math.floor(Math.random() * group.members.length);
+                group.members[randomIndex].isLeader = true;
+            }
+        });
+
+        console.log('分组算法完成，开始显示结果...');
+        
+        // 直接显示分组结果，不依赖Firebase
+        displayGroupingResults(groups);
+        resultsDiv.classList.remove('hidden');
+        console.log('分组结果显示完成');
+
+        // 恢复按钮状态
+        button.disabled = false;
+        button.innerHTML = `
+            <span class="flex items-center justify-center">
+                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                重新分组
+            </span>
+        `;
+
+        showError('随机分组完成！', true);
     }
 
     // 显示分组结果
@@ -651,7 +640,7 @@
     }
 
     // 清除所有分组
-    async function clearAllGrouping() {
+    function clearAllGrouping() {
         const button = document.getElementById('clearGroupingButton');
         const resultsDiv = document.getElementById('groupingResults');
         
@@ -678,57 +667,24 @@
             </span>
         `;
 
-        try {
-            console.log('开始清除Firebase数据...');
-            
-            // 清除Firebase中的所有分组数据
-            const groupsRef = db.collection('groups');
-            const batch = db.batch();
-            
-            // 初始化7个空分组
-            for (let i = 0; i < 7; i++) {
-                const groupDoc = groupsRef.doc(`group${i}`);
-                batch.set(groupDoc, {
-                    groupId: i,
-                    members: []
-                }, { merge: true });
-            }
-            
-            await batch.commit();
-            console.log('Firebase数据清除完成');
+        console.log('开始清除分组数据...');
+        
+        // 隐藏分组结果
+        resultsDiv.classList.add('hidden');
+        console.log('分组结果已隐藏');
 
-            // 隐藏分组结果
-            resultsDiv.classList.add('hidden');
-            console.log('分组结果已隐藏');
+        // 恢复按钮状态
+        button.disabled = false;
+        button.innerHTML = `
+            <span class="flex items-center justify-center">
+                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                清除分组
+            </span>
+        `;
 
-            // 恢复按钮状态
-            button.disabled = false;
-            button.innerHTML = `
-                <span class="flex items-center justify-center">
-                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                    清除分组
-                </span>
-            `;
-
-            showError('所有分组数据已清除！', true);
-
-        } catch (error) {
-            console.error('清除分组失败:', error);
-            showError('清除分组失败: ' + error.message);
-            
-            // 恢复按钮状态
-            button.disabled = false;
-            button.innerHTML = `
-                <span class="flex items-center justify-center">
-                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                    清除分组
-                </span>
-            `;
-        }
+        showError('所有分组数据已清除！', true);
     }
 
     // 返回初始页面
