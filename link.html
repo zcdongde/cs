@@ -180,13 +180,11 @@
     </style>
 </head>
 <body>
-    <h1>dongde常用链接</h1>
+    <h1>dongde · GitHub页面索引</h1>
 
     <div class="search-container">
         <input type="text" id="search-input" placeholder="搜索链接...">
         <div class="categories">
-            <button class="category-btn active" data-category="all">全部</button>
-            <!-- 这里会通过JavaScript自动生成分类按钮 -->
             <button class="category-btn" id="refresh-btn" title="刷新GitHub文件列表">🔄</button>
         </div>
     </div>
@@ -200,135 +198,14 @@
     </footer>
 
     <script>
-        // ===== 在这里添加你的链接数据 =====
-        // 只需要修改这个数组，其他代码不需要动
-        let linksData = [
-            // 工作相关链接
-            {
-                category: "工作",
-                links: [
-                    {
-                        title: "电学三部工作表",
-                        url: "https://kdocs.cn/l/ctOsB5xFfTMl",
-                        description: "",
-                        password: "0"
-                    },
-                    {
-                        title: "电学部人员与工位图",
-                        url: "https://www.kdocs.cn/l/cm98uqdVZfzJ",
-                        description: "",
-                        password: "0"
-                    },
-                    {
-                        title: "个人规划表",
-                        url: "https://kdocs.cn/l/crgrVl1S7TmC",
-                        description: "",
-                        password: ""
-                    }
-                ]
-            },
-            // 自己制作的工具类
-            {
-                category: "工具制作",
-                links: [                 
-                    {
-                        title: "个人github管理后台",
-                        url: "https://github.com/zcdongde/cs",
-                        description: ""
-                    },
-                    {
-                        title: "提示词管理器",
-                        url: "https://zcdongde.github.io/cs/%E6%8F%90%E7%A4%BA%E8%AF%8D%E7%AE%A1%E7%90%86%E5%99%A8.html",
-                        description: ""
-                    },
-                    {
-                        title: "计算器",
-                        url: "https://zcdongde.github.io/cs/%E8%AE%A1%E7%AE%97%E5%99%A8.html",
-                        description: ""
-                    }
-                    
-                ]
-            },
-            
-            // 传输工具
-            {
-                category: "传输工具",
-                links: [
-                    {
-                        title: "个人开源记事本",
-                        url: "https://getnote.top/dongde",
-                        description: "",
-                        password: "g"
-                    },
-                    {
-                        title: "文叔叔",
-                        url: "https://www.wenshushu.cn/",
-                        description: ""
-                    },
-                    {
-                        title: "云鸽",
-                        url: "https://yunge.in/dongde",
-                        description: ""
-                    }
-                ]
-            },
-            
-            // 分享
-            {
-                category: "分享",
-                links: [
-                    {
-                        title: "分享主页",
-                        url: "https://www.wolai.com/tsTWA4XkKVd8Yge771bnYZ",
-                        description: ""
-                    },
-                    {
-                        title: "win和office激活指令（通过终端运行）",
-                        url: "irm https://massgrave.dev/get | iex",
-                        description: ""
-                    }
-                ]
-            },
-            
-            // 知识产权学习
-            {
-                category: "知识产权学习",
-                links: [
-                    {
-                        title: "电学软通专利撰写学习教程",
-                        url: "",
-                        description: "",
-                        password: "0"
-                    },
-                    {
-                        title: "OA答复学习教程",
-                        url: "",
-                        description: "",
-                        password: "0"
-                    }
-                ]
-            },
-            
-            // IT学习资源
-            {
-                category: "IT学习资源",
-                links: [
-                    {
-                        title: "MDN Web 文档",
-                        url: "https://developer.mozilla.org/zh-CN/",
-                        description: "Web开发学习资源"
-                    },
-                    {
-                        title: "菜鸟教程",
-                        url: "https://www.runoob.com/",
-                        description: "各类编程语言教程"
-                    }
-                ]
-            }
-            
-            
-        ];
-        // ===== 链接数据结束 =====
+        // ===== 在这里可选添加你的手动链接（默认留空，保留结构以便未来需要时启用） =====
+        // 结构示例：
+        // {
+        //     category: "自定义分类",
+        //     links: [{ title: "标题", url: "https://...", description: "可选", password: "可选" }]
+        // }
+        let linksData = [];
+        // ===== 手动链接结束 =====
 
         // GitHub仓库配置
         const GITHUB_CONFIG = {
@@ -337,46 +214,77 @@
             branch: 'main'
         };
 
-        // 获取GitHub仓库中的HTML文件
+        // 可配置的自动分类规则：按文件名或路径匹配，返回分类名
+        // 示例（启用时取消注释或新增条目）：
+        // 规则命中顺序自上而下，命中即停止
+        const CATEGORY_RULES = [
+            { pattern: /专利|条目|审查|OA/i, category: '知识产权/专利' },
+            { pattern: /计算器|calculator/i, category: '工具/计算器' },
+            { pattern: /提示词|prompt|poe/i, category: 'AI/提示词' },
+            { pattern: /预览|preview/i, category: '预览' },
+            { pattern: /分组|随机|抽签|group/i, category: '工具/随机分组' },
+            { pattern: /管理器|管理台|dashboard|工具|tool/i, category: '工具' }
+        ];
+
+        function getAutoCategory(fileName, filePath) {
+            // 1) 目录优先：有顶层目录则用顶层目录
+            if (filePath && filePath.includes('/')) {
+                const top = filePath.split('/')[0];
+                if (top) return top;
+            }
+            // 2) 规则匹配：命中则返回配置的分类
+            for (const rule of CATEGORY_RULES) {
+                if (rule.pattern && rule.pattern.test && rule.pattern.test(fileName)) {
+                    return rule.category || '未分类';
+                }
+            }
+            // 3) 默认：未分类
+            return '未分类';
+        }
+
+        // 获取GitHub仓库中的HTML文件（递归遍历目录）
         async function fetchGitHubHtmlFiles() {
             try {
                 console.log('开始获取GitHub文件...');
-                const apiUrl = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents?ref=${GITHUB_CONFIG.branch}`;
-                console.log('API URL:', apiUrl);
-                
-                const response = await fetch(apiUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/vnd.github.v3+json',
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                const rootUrl = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents?ref=${GITHUB_CONFIG.branch}`;
+
+                const fetchDir = async (apiUrl, basePath = '') => {
+                    const res = await fetch(apiUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/vnd.github.v3+json',
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                        }
+                    });
+                    if (!res.ok) {
+                        const errorText = await res.text();
+                        throw new Error(`HTTP ${res.status}: ${errorText}`);
                     }
-                });
-                console.log('响应状态:', response.status);
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('API错误响应:', errorText);
-                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-                }
-                const files = await response.json();
-                console.log('获取到的文件列表:', files);
-                
-                // 过滤出HTML文件（排除link.html本身）
-                const htmlFiles = files.filter(file => 
-                    file.name.endsWith('.html') && 
-                    file.name !== 'link.html' &&
-                    file.type === 'file'
-                );
-                console.log('过滤后的HTML文件:', htmlFiles);
-                
-                const result = htmlFiles.map(file => ({
-                    title: file.name.replace('.html', ''),
-                    url: `https://${GITHUB_CONFIG.username}.github.io/${GITHUB_CONFIG.repo}/${encodeURIComponent(file.name)}`,
-                    description: `自动同步的页面 - ${new Date(file.last_modified || file.updated_at).toLocaleDateString('zh-CN')}`,
-                    autoGenerated: true
-                }));
-                console.log('最终结果:', result);
-                return result;
+                    const items = await res.json();
+                    let results = [];
+                    for (const item of items) {
+                        if (item.type === 'dir') {
+                            const nextUrl = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${encodeURIComponent(item.path)}?ref=${GITHUB_CONFIG.branch}`;
+                            const sub = await fetchDir(nextUrl, item.path);
+                            results = results.concat(sub);
+                        } else if (item.type === 'file' && item.name.endsWith('.html') && item.name !== 'link.html') {
+                            const category = getAutoCategory(item.name, item.path);
+                            const pageUrl = `https://${GITHUB_CONFIG.username}.github.io/${GITHUB_CONFIG.repo}/${item.path.split('/').map(encodeURIComponent).join('/')}`;
+                            results.push({
+                                category,
+                                title: item.name.replace(/\.html$/i, ''),
+                                url: pageUrl,
+                                description: '',
+                                autoGenerated: true
+                            });
+                        }
+                    }
+                    return results;
+                };
+
+                const all = await fetchDir(rootUrl);
+                console.log('最终结果(递归):', all);
+                return all;
             } catch (error) {
                 console.error('获取GitHub文件失败:', error);
                 showToast('获取GitHub文件失败: ' + error.message);
@@ -384,30 +292,39 @@
             }
         }
 
-        // 合并静态链接和动态链接
+        // 合并（当前仅使用GitHub自动页面，预留手动链接能力）
         async function loadAllLinks() {
             console.log('开始加载所有链接...');
-            const githubFiles = await fetchGitHubHtmlFiles();
-            console.log('GitHub文件数量:', githubFiles.length);
-            
-            // 找到"工具制作"分类并添加GitHub文件
-            const toolCategory = linksData.find(category => category.category === "工具制作");
-            console.log('找到工具制作分类:', toolCategory);
-            
-            if (toolCategory) {
-                console.log('工具制作分类原有链接数量:', toolCategory.links.length);
-                // 移除之前自动生成的链接
-                toolCategory.links = toolCategory.links.filter(link => !link.autoGenerated);
-                console.log('移除自动生成链接后的数量:', toolCategory.links.length);
-                // 添加新的GitHub文件链接
-                toolCategory.links.push(...githubFiles);
-                console.log('添加GitHub文件后的数量:', toolCategory.links.length);
-            } else {
-                console.error('未找到"工具制作"分类');
+            const githubPages = await fetchGitHubHtmlFiles();
+            console.log('GitHub文件数量:', githubPages.length);
+
+            // 将GitHub页面按目录名分组
+            const groupsMap = new Map();
+            for (const page of githubPages) {
+                const group = page.category || '未分类';
+                if (!groupsMap.has(group)) groupsMap.set(group, []);
+                groupsMap.get(group).push({
+                    title: page.title,
+                    url: page.url,
+                    description: page.description,
+                    autoGenerated: true
+                });
             }
-            
-            console.log('最终链接数据:', linksData);
-            return linksData;
+
+            // 将手动链接（如有）也并入其各自category
+            for (const cat of linksData) {
+                if (!groupsMap.has(cat.category)) groupsMap.set(cat.category, []);
+                // 仅保留非自动生成的手动链接
+                groupsMap.get(cat.category).push(...(cat.links || []).filter(l => !l.autoGenerated));
+            }
+
+            // 构建渲染所需的数据结构
+            const merged = Array.from(groupsMap.entries()).map(([category, links]) => ({ category, links }));
+            // 排序：未分类放最后，其余按字母/拼音
+            merged.sort((a, b) => (a.category === '未分类') - (b.category === '未分类') || a.category.localeCompare(b.category, 'zh-Hans-CN'));
+
+            console.log('最终链接数据(自动分组):', merged);
+            return merged;
         }
 
         // 获取DOM元素
@@ -424,37 +341,18 @@
             // 加载所有链接（包括GitHub文件）
             linksData = await loadAllLinks();
             
-            // 提取所有分类
-            const categories = ['all', ...new Set(linksData.map(item => item.category))];
-            
-            // 生成分类按钮
-            categories.forEach(category => {
-                if (category !== 'all') { // "全部"按钮已经在HTML中添加了
-                    const button = document.createElement('button');
-                    button.className = 'category-btn';
-                    button.textContent = category;
-                    button.dataset.category = category;
-                    categoriesContainer.appendChild(button);
-                }
-            });
-            
             // 初始渲染
-            renderLinks();
+            renderLinks('');
         }
         
-        // 渲染链接函数
-        function renderLinks(filterCategory = 'all', searchTerm = '') {
+        // 渲染链接函数（不再提供顶部分类筛选，仅自动分组显示）
+        function renderLinks(searchTerm = '') {
             linksContainer.innerHTML = '';
-            
-            let filteredData = linksData;
-            if (filterCategory !== 'all') {
-                filteredData = linksData.filter(item => item.category === filterCategory);
-            }
             
             let hasResults = false;
             let categoryIndex = 1; // 分类序号计数器
             
-            filteredData.forEach(categoryItem => {
+            linksData.forEach(categoryItem => {
                 const filteredLinks = categoryItem.links.filter(link => {
                     const lowerSearchTerm = searchTerm.toLowerCase();
                     return link.title.toLowerCase().includes(lowerSearchTerm) || 
@@ -489,11 +387,7 @@
                             linkElement.addEventListener('click', function(event) {
                                 event.preventDefault();
                                 const enteredPassword = prompt(`请输入密码以访问 "${link.title}":`);
-                                
-                                if (enteredPassword === null) {
-                                    return; 
-                                }
-                                
+                                if (enteredPassword === null) return;
                                 if (enteredPassword === link.password) {
                                     window.open(link.url, '_blank');
                                 } else {
@@ -522,11 +416,9 @@
                         // 根据密码类型显示不同锁图标
                         if (link.password) {
                             if (link.password === "0") {
-                                // 默认密码，显示普通锁
                                 linkElement.appendChild(document.createTextNode(' 🔒'));
                             } else {
-                                // 自定义密码，显示钥匙图标
-                                linkElement.appendChild(document.createTextNode(' 🔑')); 
+                                linkElement.appendChild(document.createTextNode(' 🔑'));
                             }
                         }
 
@@ -564,7 +456,6 @@
                             if (link.password) {
                                 const enteredPassword = prompt(`请输入密码以复制 "${link.title}" 的链接:`);
                                 if (enteredPassword === null) return;
-                                
                                 if (enteredPassword === link.password) {
                                     copyToClipboard(link.url);
                                 } else {
@@ -622,17 +513,14 @@
         
         // 搜索功能
         searchInput.addEventListener('input', () => {
-            const activeCategory = document.querySelector('.category-btn.active').dataset.category;
-            renderLinks(activeCategory, searchInput.value.trim());
+            renderLinks(searchInput.value.trim());
         });
         
-        // 分类筛选和刷新按钮
+        // 仅处理刷新按钮
         categoriesContainer.addEventListener('click', (e) => {
             if (e.target.id === 'refresh-btn') {
-                // 刷新GitHub文件列表
                 e.target.textContent = '⏳';
                 e.target.disabled = true;
-                
                 initialize().then(() => {
                     e.target.textContent = '🔄';
                     e.target.disabled = false;
@@ -642,13 +530,6 @@
                     e.target.disabled = false;
                     showToast('刷新失败，请重试');
                 });
-            } else if (e.target.classList.contains('category-btn')) {
-                document.querySelectorAll('.category-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-                e.target.classList.add('active');
-                
-                renderLinks(e.target.dataset.category, searchInput.value.trim());
             }
         });
     </script>
