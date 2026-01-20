@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>审议答复文件命名整理</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --surface-hover: #232f3f;
+      --border: #2d3a4d;
+      --accent: #3b82f6;
+      --accent-soft: rgba(59, 130, 246, 0.15);
+      --text: #e6edf3;
+      --text-muted: #8b9eb5;
+      --success: #22c55e;
+      --success-soft: rgba(34, 197, 94, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Noto Serif SC', 'Microsoft YaHei', serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .card-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.75rem;
+    }
+
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .upload-zone:hover, .upload-zone.dragover {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .upload-zone input[type="file"] {
+      display: none;
+    }
+
+    .upload-zone .icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      opacity: 0.7;
+    }
+
+    .upload-zone .hint {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .extracted-name {
+      font-family: 'JetBrains Mono', 'Consolas', monospace;
+      font-size: 0.95rem;
+      background: var(--success-soft);
+      color: var(--success);
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      margin-top: 0.75rem;
+      word-break: break-all;
+    }
+
+    .extracted-name.empty {
+      background: transparent;
+      color: var(--text-muted);
+    }
+
+    .option-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .option-btn {
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .option-btn:hover {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .option-btn.active {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .name-list {
+      list-style: none;
+    }
+
+    .name-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.95rem;
+    }
+
+    .name-item:last-child {
+      border-bottom: none;
+    }
+
+    .name-item .label {
+      flex-shrink: 0;
+      color: var(--text-muted);
+      min-width: 140px;
+    }
+
+    .name-item .value {
+      font-family: 'JetBrains Mono', 'Consolas', monospace;
+      word-break: break-all;
+      flex: 1;
+    }
+
+    .copy-btn {
+      flex-shrink: 0;
+      font-size: 0.8rem;
+      padding: 0.25rem 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .copy-btn.copied {
+      border-color: var(--success);
+      color: var(--success);
+    }
+
+    .placeholder {
+      color: var(--text-muted);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>审议答复文件命名整理</h1>
+    <p class="subtitle">上传审查意见通知书和本申请文件，自动生成规范的文件命名</p>
+
+    <div class="row">
+      <div class="card">
+        <div class="card-title">审查意见通知书</div>
+        <label class="upload-zone" id="zoneNotice">
+          <input type="file" id="inputNotice" accept="*/*">
+          <div class="icon">📄</div>
+          <div class="hint">点击或拖拽上传</div>
+          <div class="extracted-name empty" id="nameNotice">尚未上传</div>
+        </label>
+      </div>
+
+      <div class="card">
+        <div class="card-title">本申请文件</div>
+        <label class="upload-zone" id="zoneApp">
+          <input type="file" id="inputApp" accept="*/*">
+          <div class="icon">📋</div>
+          <div class="hint">点击或拖拽上传</div>
+          <div class="extracted-name empty" id="nameApp">尚未上传</div>
+        </label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">选择审查轮次</div>
+      <div class="option-group">
+        <button type="button" class="option-btn active" data-value="1通">1通</button>
+        <button type="button" class="option-btn" data-value="2通">2通</button>
+        <button type="button" class="option-btn" data-value="3通">3通</button>
+        <button type="button" class="option-btn" data-value="复审">复审</button>
+      </div>
+
+      <div class="card-title">生成的文件名称</div>
+      <ul class="name-list">
+        <li class="name-item">
+          <span class="label">答复文件名称</span>
+          <span class="value" id="outReply"><span class="placeholder">—</span></span>
+          <button type="button" class="copy-btn" data-target="outReply">复制</button>
+        </li>
+        <li class="name-item">
+          <span class="label">修改对照页名称</span>
+          <span class="value" id="outCompare"><span class="placeholder">—</span></span>
+          <button type="button" class="copy-btn" data-target="outCompare">复制</button>
+        </li>
+        <li class="name-item">
+          <span class="label">修改替换页名称</span>
+          <span class="value" id="outReplace"><span class="placeholder">—</span></span>
+          <button type="button" class="copy-btn" data-target="outReplace">复制</button>
+        </li>
+        <li class="name-item">
+          <span class="label">压缩包名称</span>
+          <span class="value" id="outZip"><span class="placeholder">—</span></span>
+          <button type="button" class="copy-btn" data-target="outZip">复制</button>
+        </li>
+        <li class="name-item">
+          <span class="label">CPC包名称</span>
+          <span class="value" id="outCpc"><span class="placeholder">—</span></span>
+          <button type="button" class="copy-btn" data-target="outCpc">复制</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const inputNotice = document.getElementById('inputNotice');
+      const inputApp = document.getElementById('inputApp');
+      const nameNotice = document.getElementById('nameNotice');
+      const nameApp = document.getElementById('nameApp');
+      const zoneNotice = document.getElementById('zoneNotice');
+      const zoneApp = document.getElementById('zoneApp');
+      const optionBtns = document.querySelectorAll('.option-btn[data-value]');
+
+      let noticeFileName = '';
+      let appBaseName = '';
+      let appDisplayName = '';
+      let selectedTong = '1通';
+
+      function getBaseName(path) {
+        if (!path) return '';
+        const name = path.replace(/^.*[\\/]/, '');
+        const dot = name.lastIndexOf('.');
+        return dot > 0 ? name.slice(0, dot) : name;
+      }
+
+      function todayStr() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return y + m + day;
+      }
+
+      function updateNotice(ev) {
+        const f = (ev.target && ev.target.files && ev.target.files[0]) || (ev.dataTransfer && ev.dataTransfer.files[0]);
+        if (!f) return;
+        noticeFileName = f.name;
+        nameNotice.textContent = noticeFileName;
+        nameNotice.classList.remove('empty');
+        updateOutputs();
+      }
+
+      function updateApp(ev) {
+        const f = (ev.target && ev.target.files && ev.target.files[0]) || (ev.dataTransfer && ev.dataTransfer.files[0]);
+        if (!f) return;
+        appBaseName = getBaseName(f.name);
+        appDisplayName = '本申请-' + (f.name || appBaseName);
+        nameApp.textContent = appDisplayName;
+        nameApp.classList.remove('empty');
+        updateOutputs();
+      }
+
+      function setTong(val) {
+        selectedTong = val;
+        optionBtns.forEach(function (b) {
+          b.classList.toggle('active', b.getAttribute('data-value') === val);
+        });
+        updateOutputs();
+      }
+
+      function updateOutputs() {
+        const A = appBaseName || 'A';
+        const noticeBase = noticeFileName ? getBaseName(noticeFileName) : '';
+        const date = todayStr();
+
+        setOut('outReply', selectedTong + '答复文件-' + A);
+        setOut('outCompare', selectedTong + '权利要求书-修改对照页-' + A);
+        setOut('outReplace', selectedTong + '权利要求书-修改替换页-' + A);
+        setOut('outZip', (noticeBase || '审查意见通知书') + '-董德-' + date);
+        setOut('outCpc', selectedTong + '-CPC包-' + A);
+      }
+
+      function setOut(id, text) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const ph = el.querySelector('.placeholder');
+        if (ph) {
+          ph.remove();
+        }
+        el.textContent = text;
+      }
+
+      function setupDragDrop(zone, handler) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(function (e) {
+          zone.addEventListener(e, function (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            zone.classList.toggle('dragover', e === 'dragenter' || e === 'dragover');
+            if (e === 'drop' && ev.dataTransfer && ev.dataTransfer.files.length) {
+              handler({ dataTransfer: ev.dataTransfer });
+            }
+          });
+        });
+      }
+
+      inputNotice.addEventListener('change', updateNotice);
+      inputApp.addEventListener('change', updateApp);
+      setupDragDrop(zoneNotice, function (ev) {
+        const f = ev.dataTransfer.files[0];
+        if (!f) return;
+        noticeFileName = f.name;
+        nameNotice.textContent = noticeFileName;
+        nameNotice.classList.remove('empty');
+        updateOutputs();
+      });
+      setupDragDrop(zoneApp, function (ev) {
+        const f = ev.dataTransfer.files[0];
+        if (!f) return;
+        appBaseName = getBaseName(f.name);
+        appDisplayName = '本申请-' + f.name;
+        nameApp.textContent = appDisplayName;
+        nameApp.classList.remove('empty');
+        updateOutputs();
+      });
+
+      optionBtns.forEach(function (b) {
+        b.addEventListener('click', function () {
+          setTong(b.getAttribute('data-value'));
+        });
+      });
+
+      document.querySelectorAll('.copy-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const id = btn.getAttribute('data-target');
+          const el = document.getElementById(id);
+          const text = el && el.textContent ? el.textContent.trim() : '';
+          if (!text || text === '—') return;
+          navigator.clipboard.writeText(text).then(function () {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function () {
+              btn.textContent = '复制';
+              btn.classList.remove('copied');
+            }, 1500);
+          });
+        });
+      });
+
+      updateOutputs();
+    })();
+  </script>
+</body>
+</html>
