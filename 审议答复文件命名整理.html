@@ -117,6 +117,53 @@
       color: var(--text-muted);
     }
 
+    .extracted-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .extracted-row .extracted-name {
+      margin-top: 0;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .extracted-row:has(.empty) .copy-btn {
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .name-field {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .name-field .label {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .name-field input {
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+      width: 140px;
+    }
+
+    .name-field input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
     .option-group {
       display: flex;
       flex-wrap: wrap;
@@ -225,7 +272,10 @@
           <input type="file" id="inputNotice" accept="*/*">
           <div class="icon">📄</div>
           <div class="hint">点击或拖拽上传</div>
-          <div class="extracted-name empty" id="nameNotice">尚未上传</div>
+          <div class="extracted-row">
+            <div class="extracted-name empty" id="nameNotice">尚未上传</div>
+            <button type="button" class="copy-btn copy-extracted" data-target="nameNotice">复制</button>
+          </div>
         </label>
       </div>
 
@@ -235,12 +285,19 @@
           <input type="file" id="inputApp" accept="*/*">
           <div class="icon">📋</div>
           <div class="hint">点击或拖拽上传</div>
-          <div class="extracted-name empty" id="nameApp">尚未上传</div>
+          <div class="extracted-row">
+            <div class="extracted-name empty" id="nameApp">尚未上传</div>
+            <button type="button" class="copy-btn copy-extracted" data-target="nameApp">复制</button>
+          </div>
         </label>
       </div>
     </div>
 
     <div class="card">
+      <div class="name-field">
+        <span class="label">姓名</span>
+        <input type="text" id="inputName" value="董德" placeholder="董德">
+      </div>
       <div class="card-title">选择审查轮次</div>
       <div class="option-group">
         <button type="button" class="option-btn active" data-value="1通">1通</button>
@@ -289,6 +346,7 @@
       const zoneNotice = document.getElementById('zoneNotice');
       const zoneApp = document.getElementById('zoneApp');
       const optionBtns = document.querySelectorAll('.option-btn[data-value]');
+      const inputName = document.getElementById('inputName');
 
       let noticeFileName = '';
       let appBaseName = '';
@@ -314,7 +372,7 @@
         const f = (ev.target && ev.target.files && ev.target.files[0]) || (ev.dataTransfer && ev.dataTransfer.files[0]);
         if (!f) return;
         noticeFileName = f.name;
-        nameNotice.textContent = noticeFileName;
+        nameNotice.textContent = getBaseName(noticeFileName);
         nameNotice.classList.remove('empty');
         updateOutputs();
       }
@@ -323,7 +381,7 @@
         const f = (ev.target && ev.target.files && ev.target.files[0]) || (ev.dataTransfer && ev.dataTransfer.files[0]);
         if (!f) return;
         appBaseName = getBaseName(f.name);
-        appDisplayName = '本申请-' + (f.name || appBaseName);
+        appDisplayName = '本申请-' + appBaseName;
         nameApp.textContent = appDisplayName;
         nameApp.classList.remove('empty');
         updateOutputs();
@@ -337,15 +395,21 @@
         updateOutputs();
       }
 
+      function getUserName() {
+        const el = document.getElementById('inputName');
+        return (el && el.value && el.value.trim()) ? el.value.trim() : '董德';
+      }
+
       function updateOutputs() {
         const A = appBaseName || 'A';
         const noticeBase = noticeFileName ? getBaseName(noticeFileName) : '';
         const date = todayStr();
+        const userName = getUserName();
 
         setOut('outReply', selectedTong + '答复文件-' + A);
         setOut('outCompare', selectedTong + '权利要求书-修改对照页-' + A);
         setOut('outReplace', selectedTong + '权利要求书-修改替换页-' + A);
-        setOut('outZip', (noticeBase || '审查意见通知书') + '-董德-' + date);
+        setOut('outZip', (noticeBase || '审查意见通知书') + '-' + userName + '-' + date);
         setOut('outCpc', selectedTong + '-CPC包-' + A);
       }
 
@@ -378,7 +442,7 @@
         const f = ev.dataTransfer.files[0];
         if (!f) return;
         noticeFileName = f.name;
-        nameNotice.textContent = noticeFileName;
+        nameNotice.textContent = getBaseName(noticeFileName);
         nameNotice.classList.remove('empty');
         updateOutputs();
       });
@@ -386,11 +450,16 @@
         const f = ev.dataTransfer.files[0];
         if (!f) return;
         appBaseName = getBaseName(f.name);
-        appDisplayName = '本申请-' + f.name;
+        appDisplayName = '本申请-' + appBaseName;
         nameApp.textContent = appDisplayName;
         nameApp.classList.remove('empty');
         updateOutputs();
       });
+
+      if (inputName) {
+        inputName.addEventListener('input', updateOutputs);
+        inputName.addEventListener('change', updateOutputs);
+      }
 
       optionBtns.forEach(function (b) {
         b.addEventListener('click', function () {
@@ -398,20 +467,35 @@
         });
       });
 
-      document.querySelectorAll('.copy-btn').forEach(function (btn) {
+      function doCopy(btn, text) {
+        if (!text || text === '—' || text === '尚未上传') return;
+        navigator.clipboard.writeText(text).then(function () {
+          btn.textContent = '已复制';
+          btn.classList.add('copied');
+          setTimeout(function () {
+            btn.textContent = '复制';
+            btn.classList.remove('copied');
+          }, 1500);
+        });
+      }
+
+      document.querySelectorAll('.copy-btn.copy-extracted').forEach(function (btn) {
+        btn.addEventListener('click', function (ev) {
+          ev.preventDefault();
+          ev.stopPropagation();
+          const id = btn.getAttribute('data-target');
+          const el = document.getElementById(id);
+          const text = el && el.textContent ? el.textContent.trim() : '';
+          doCopy(btn, text);
+        });
+      });
+
+      document.querySelectorAll('.copy-btn:not(.copy-extracted)').forEach(function (btn) {
         btn.addEventListener('click', function () {
           const id = btn.getAttribute('data-target');
           const el = document.getElementById(id);
           const text = el && el.textContent ? el.textContent.trim() : '';
-          if (!text || text === '—') return;
-          navigator.clipboard.writeText(text).then(function () {
-            btn.textContent = '已复制';
-            btn.classList.add('copied');
-            setTimeout(function () {
-              btn.textContent = '复制';
-              btn.classList.remove('copied');
-            }, 1500);
-          });
+          doCopy(btn, text);
         });
       });
 
