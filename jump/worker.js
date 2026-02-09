@@ -21,7 +21,22 @@ export default {
       if (path in redirectMap) {
         return Response.redirect(redirectMap[path], 301);
       }
-  
+      // --- 新增的加速逻辑开始 ---
+      // 判断路径是否以 /speed/ 开头
+      if (path.startsWith("/speed/")) {
+        // 1. 获取 /speed/ 后面的内容 (即你想要访问的GitHub网址)
+        // 例如：访问 /speed/https://github.com/xxx -> 提取出 https://github.com/xxx
+        let target = path.replace("/speed/", "");
+            
+        // 2. 这里填入你喜欢的加速前缀
+        const speedPrefix = "https://github.catvod.com/";
+            
+        // 3. 拼接并执行跳转
+        // 最终跳转到：https://github.catvod.com/https://github.com/xxx
+        return Response.redirect(speedPrefix + target, 302);
+      }
+        // --- 新增的加速逻辑结束 ---
+
       // 如果不在名册里，可以让他正常访问，或者跳回首页
       // 如果想让没匹配到的都跳回首页，取消下面这一行的注释：
       // return Response.redirect("https://dongde.fun", 301);
