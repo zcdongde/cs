@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 :: 设置窗口标题
-title dongde系统维护工具箱 v5.0 (修复闪退版)
+title dongde系统维护工具箱 v5.0
 color 0b
 
 :menu
