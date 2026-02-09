@@ -7,8 +7,7 @@ export default {
       const redirectMap = {
         "/1": "https://www.wolai.com/dongde/tsTWA4XkKVd8Yge771bnYZ",
         "/jump": "https://dash.cloudflare.com/a4e336ab6e9f11616db7b8b57ef78c1a/workers/services/edit/jump/production",
-        "/new": "https://dongdepicturesbed.oss-cn-wuhan-lr.aliyuncs.com/2601-2601-%E6%8C%87%E4%BB%A4%E5%B7%A5%E5%85%B7%E7%AE%B1-14.bat",
-        // cloudflaer的跳转设置页面
+        "/工具箱": "https://raw.githubusercontent.com/zcdongde/cs/main/dongde自制指令工具箱.bat",
         "/云服务器": "https://ecs.console.aliyun.com/launch-template/region/cn-hangzhou",
         "/小软件": "https://www.kdocs.cn/mine/417445286722",
         "/大软件": "https://pan.quark.cn/s/491cf6a25dd4",
